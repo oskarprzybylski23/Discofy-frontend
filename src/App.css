@@ -1,1 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 @import 'tailwindcss';
+
+@theme {
+  --color-spotify-green: #1db954;
+  --color-spotify-green-highlight: #15803b;
+  --color-background: #121212;
+  --color-mid-background: #212121;
+  --color-mid-background-hover: #313131;
+  --color-light-background: #535353;
+  --color-highlight-bright: #787878;
+  --color-higlight-dark: #121212;
+  --color-font-bright: #ffffff;
+  --color-font-dark: #b3b3b3;
+  --color-failed: #cd4e4e;
+  --color-failed-highlight: #d23b3b;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+main {
+  @apply bg-background;
+}
+
+.btn {
+  @apply bg-spotify-green hover:bg-spotify-green-highlight text-white font-semibold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95;
+}
