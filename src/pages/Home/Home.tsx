@@ -1,15 +1,21 @@
+import Button from '../../components/button/Button';
+
 export default function Home() {
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6 w-full'>
       <div className='flex flex-wrap gap-4 justify-center'>
-        <button className='btn'>Import from Discogs</button>
-        <button className='btn'>Login to Spotify</button>
-        <button className='btn' disabled>
+        <Button onClick={() => console.log('Discogs')} variant='secondary'>
+          Import from Discogs
+        </Button>
+        <Button onClick={() => console.log('Spotify')} variant='secondary'>
+          Login to Spotify
+        </Button>
+        <Button disabled variant='secondary'>
           Save Report
-        </button>
-        <button className='btn' disabled>
+        </Button>
+        <Button onClick={() => console.log('Logout')} variant='secondary'>
           Logout
-        </button>
+        </Button>
       </div>
       {/* Add your DiscogsList and SpotifyList here later */}
     </div>

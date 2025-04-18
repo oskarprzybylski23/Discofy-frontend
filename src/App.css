@@ -5,13 +5,14 @@
   --color-spotify-green: #1db954;
   --color-spotify-green-highlight: #15803b;
   --color-background: #121212;
+  --color-white-background: #ffffff;
   --color-mid-background: #212121;
-  --color-mid-background-hover: #313131;
+  --color-background-translucent: #5353535c;
   --color-light-background: #535353;
   --color-highlight-bright: #787878;
   --color-higlight-dark: #121212;
   --color-font-bright: #ffffff;
-  --color-font-dark: #b3b3b3;
+  --color-font-dark: #121212;
   --color-failed: #cd4e4e;
   --color-failed-highlight: #d23b3b;
 }
