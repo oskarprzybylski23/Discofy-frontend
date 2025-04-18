@@ -18,7 +18,7 @@ export default function ListContainer({
   spinnerText = '',
 }: ListContainerProps) {
   return (
-    <div className='text-font-bright'>
+    <div className='text-font-bright relative'>
       {isLoading && (
         <Spinner text={spinnerText} className='spinner-container' />
       )}
