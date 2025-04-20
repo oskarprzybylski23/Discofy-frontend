@@ -17,7 +17,7 @@ export default function AlbumItem({
         <span className='text-font-mid text-sm flex justify-center items-center w-8'>
           {index + 1}
         </span>
-        <img className='h-[40px]]' src={coverUrl} alt='Album Cover' />
+        <img className='h-10' src={coverUrl} alt='Album Cover' />
         <div className='flex flex-col w-[70%]'>
           <span className='overflow-y-hidden font-medium'>{title}</span>
           <span className='text-font-mid text-sm'>{artist}</span>
