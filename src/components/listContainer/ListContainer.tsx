@@ -4,7 +4,7 @@ import UserInfo from './UserInfo';
 
 type ListContainerProps = {
   title: string;
-  loggedInUser?: { name: string; profileUrl: string };
+  loggedInUser: { loggedIn: boolean; name: string; profileUrl: string };
   children: React.ReactNode;
   isLoading?: boolean;
   spinnerText?: string;
@@ -27,9 +27,11 @@ export default function ListContainer({
         <h2>{title}</h2>
       </div>
 
-      {loggedInUser && (
-        <UserInfo name={loggedInUser.name} url={loggedInUser.profileUrl} />
-      )}
+      <div className='h-[52px]'>
+        {loggedInUser.loggedIn && (
+          <UserInfo name={loggedInUser.name} url={loggedInUser.profileUrl} />
+        )}
+      </div>
 
       <ul className='bg-light-background h-[400px] max-h-[400px] p-0.5 rounded-md overflow-y-scroll'>
         {children}

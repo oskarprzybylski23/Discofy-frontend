@@ -1,7 +1,16 @@
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 import Button from '../../components/button/Button';
 import ListContainer from '../../components/listContainer/ListContainer';
 import AlbumItem from '../../components/listContainer/AlbumItem';
 import FolderItem from '../../components/listContainer/FolderItem';
+import {
+  DiscogsAuthorizeResponse,
+  DiscogsCheckAuthResponse,
+  DiscogsLibraryResponse,
+  DiscogsUser,
+  DiscogsFolder,
+} from '../../types/discogs';
 
 const mockAlbums = [
   {
@@ -42,25 +51,172 @@ const mockAlbums = [
   },
 ];
 
-const mockFolders = [
-  {
-    id: 'f1',
-    name: 'Favorites',
-    count: 12,
-  },
-  {
-    id: 'f2',
-    name: 'To Listen',
-    count: 5,
-  },
-];
+const BASE_URL = import.meta.env.VITE_API_URL;
+
+const defaultDiscogsUser: DiscogsUser = {
+  loggedIn: false,
+  name: '',
+  profileUrl: '',
+};
 
 export default function Home() {
+  const [discogsUser, setDiscogsUser] =
+    useState<DiscogsUser>(defaultDiscogsUser);
+  const [discogsFolders, setDiscogsFolders] = useState<DiscogsFolder[]>([]);
+
+  const handleDiscogsLogin = async () => {
+    // Handle Discogs authorization protocol:
+    // - get auth URL and state ID
+    // - handle auth popup to prompt user to authorize
+    // - import user library if authorization is successfull
+    try {
+      const response = await axios.post<DiscogsAuthorizeResponse>(
+        `${BASE_URL}/authorize_discogs`,
+        null,
+        {
+          withCredentials: true,
+        }
+      );
+
+      const { authorize_url, state } = response.data;
+
+      if (!authorize_url) {
+        console.error('No authorize URL received from backend.');
+        return;
+      }
+
+      console.log(
+        'Redirecting to Discogs authorization URL with state:',
+        state
+      );
+      localStorage.setItem('discogs_state', state);
+
+      // Add listener before opening popup
+      const listener = (event: MessageEvent) => {
+        if (event.data === 'authorizationComplete') {
+          popup?.close();
+          // Import user library once authorization is complete
+          handleDiscogsImport();
+          cleanup();
+        }
+      };
+
+      const cleanup = () => {
+        window.removeEventListener('message', listener);
+        clearInterval(popupCheckInterval);
+      };
+
+      window.addEventListener('message', listener);
+
+      // Open popup
+      const popup = window.open(
+        authorize_url,
+        'Discogs Login',
+        'width=600,height=700'
+      );
+
+      if (!popup) {
+        console.error('Popup was blocked.');
+        cleanup();
+        return;
+      }
+
+      // Poll popup to detect early close
+      const popupCheckInterval = setInterval(() => {
+        if (popup.closed) {
+          console.warn('Popup closed before auth completed.');
+          cleanup();
+        }
+      }, 500);
+    } catch (error) {
+      console.error('Error during Discogs login:', error);
+    }
+  };
+
+  const checkDiscogsAuthStatus = async () => {
+    try {
+      const state = localStorage.getItem('discogs_state');
+      console.log(`checking authorization with state ${state}...`);
+
+      if (state) {
+        const response = await axios.get<DiscogsCheckAuthResponse>(
+          `${BASE_URL}/check_authorization?state=${state}`
+        );
+        if (response.data.authorized) {
+          console.log('User is authorized with Discogs');
+          return true;
+        } else {
+          console.log('User is not authorized with Discogs');
+          return false;
+        }
+      } else {
+        console.log('user state not present');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking Discogs authorization:', error);
+    }
+  };
+  // Check if user is logged in to Discogs on page load
+  useEffect(() => {
+    checkDiscogsAuthStatus();
+  });
+
+  const handleDiscogsImport = async () => {
+    try {
+      const state = localStorage.getItem('discogs_state');
+      const userAuthorized = await checkDiscogsAuthStatus();
+
+      if (state && userAuthorized) {
+        const response = await axios.get<DiscogsLibraryResponse>(
+          `${BASE_URL}/get_library?state=${state}`
+        );
+        console.log(response.data);
+        const { user_info, library } = response.data;
+
+        if (user_info) {
+          setDiscogsUser({
+            loggedIn: true,
+            name: user_info.username,
+            profileUrl: user_info.url,
+          });
+        }
+
+        if (library) {
+          const formattedFolders = library.map((item: any, i: number) => ({
+            id: `f${i}`,
+            name: item.folder,
+            count: parseInt(item.count),
+          }));
+
+          setDiscogsFolders(formattedFolders);
+        }
+      } else {
+        console.log(
+          'importing Discogs Library failed: User is not authorized.'
+        );
+      }
+    } catch (error) {
+      console.error('Error importing from Discogs:', error);
+    }
+  };
+
+  const handleDiscogsLogout = () => {
+    localStorage.clear();
+    // Clear user + folders
+    setDiscogsUser({
+      loggedIn: false,
+      name: '',
+      profileUrl: '',
+    });
+    setDiscogsFolders([]);
+  };
+
   return (
     <div className='flex flex-col items-center space-y-6 w-full'>
       {/* Top action buttons */}
       <div className='flex flex-wrap gap-4 justify-center'>
-        <Button onClick={() => console.log('Discogs')} variant='secondary'>
+        <Button onClick={handleDiscogsLogin} variant='secondary'>
           Import from Discogs
         </Button>
         <Button onClick={() => console.log('Spotify')} variant='secondary'>
@@ -69,7 +225,7 @@ export default function Home() {
         <Button disabled variant='secondary'>
           Save Report
         </Button>
-        <Button onClick={() => console.log('Logout')} variant='secondary'>
+        <Button onClick={handleDiscogsLogout} variant='secondary'>
           Logout
         </Button>
       </div>
@@ -80,27 +236,15 @@ export default function Home() {
         <div>
           <ListContainer
             title='Discogs Collection'
-            loggedInUser={{
-              name: 'oskar.przybylski23',
-              profileUrl: 'https://discogs.com/user/oskar.przybylski23',
-            }}
+            loggedInUser={discogsUser}
             spinnerText='Fetching Discogs...'
           >
-            {mockFolders.map((folder, i) => (
+            {discogsFolders.map((folder, i) => (
               <FolderItem
                 key={folder.id}
                 index={i}
                 name={folder.name}
                 count={folder.count}
-              />
-            ))}
-            {mockAlbums.map((album, i) => (
-              <AlbumItem
-                key={album.id}
-                index={i}
-                title={album.title}
-                artist={album.artist}
-                coverUrl={album.cover}
               />
             ))}
           </ListContainer>
@@ -137,6 +281,7 @@ export default function Home() {
           <ListContainer
             title='Spotify Playlist'
             loggedInUser={{
+              loggedIn: true,
               name: 'oskar_przybylski23',
               profileUrl: 'https://open.spotify.com/user/oskar_przybylski23',
             }}
