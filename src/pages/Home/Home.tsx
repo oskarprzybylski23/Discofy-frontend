@@ -63,6 +63,7 @@ export default function Home() {
   const [discogsUser, setDiscogsUser] =
     useState<DiscogsUser>(defaultDiscogsUser);
   const [discogsFolders, setDiscogsFolders] = useState<DiscogsFolder[]>([]);
+  const [discogsIsLoading, setDiscogsIsLoading] = useState(false);
 
   const handleDiscogsLogin = async () => {
     // Handle Discogs authorization protocol:
@@ -164,6 +165,7 @@ export default function Home() {
 
   const handleDiscogsImport = async () => {
     try {
+      setDiscogsIsLoading(true);
       const state = localStorage.getItem('discogs_state');
       const userAuthorized = await checkDiscogsAuthStatus();
 
@@ -190,6 +192,7 @@ export default function Home() {
           }));
 
           setDiscogsFolders(formattedFolders);
+          setDiscogsIsLoading(false);
         }
       } else {
         console.log(
@@ -238,6 +241,7 @@ export default function Home() {
             title='Discogs Collection'
             loggedInUser={discogsUser}
             spinnerText='Fetching Discogs...'
+            isLoading={discogsIsLoading}
           >
             {discogsFolders.map((folder, i) => (
               <FolderItem
