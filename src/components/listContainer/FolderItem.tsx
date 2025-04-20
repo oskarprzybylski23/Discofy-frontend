@@ -13,7 +13,7 @@ export default function FolderItem({ index, name, count }: FolderItemProps) {
         </span>
         <div className='flex flex-col w-[70%]'>
           <span className='overflow-y-hidden font-medium'>{name}</span>
-          <span className='text-font-mid text-sm'>({count})</span>
+          <span className='text-font-mid text-sm'>{`${count} records`}</span>
         </div>
       </div>
     </li>
