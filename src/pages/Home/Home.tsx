@@ -145,6 +145,7 @@ export default function Home() {
         );
         if (response.data.authorized) {
           console.log('User is authorized with Discogs');
+
           return true;
         } else {
           console.log('User is not authorized with Discogs');
@@ -160,16 +161,25 @@ export default function Home() {
   };
   // Check if user is logged in to Discogs on page load
   useEffect(() => {
-    checkDiscogsAuthStatus();
-  });
+    const initializeUser = async () => {
+      if (discogsUser.loggedIn) return; // Avoid re-import if already logged in
+
+      const isAuthorized = await checkDiscogsAuthStatus();
+      if (isAuthorized) {
+        await handleDiscogsImport();
+      }
+    };
+
+    initializeUser();
+  }, []);
 
   const handleDiscogsImport = async () => {
     try {
       setDiscogsIsLoading(true);
       const state = localStorage.getItem('discogs_state');
-      const userAuthorized = await checkDiscogsAuthStatus();
+      //   const userAuthorized = await checkDiscogsAuthStatus();
 
-      if (state && userAuthorized) {
+      if (state) {
         const response = await axios.get<DiscogsLibraryResponse>(
           `${BASE_URL}/get_library?state=${state}`
         );
