@@ -58,10 +58,6 @@ export default function Home() {
         return;
       }
 
-      console.log(
-        'Redirecting to Discogs authorization URL with state:',
-        state
-      );
       localStorage.setItem('discogs_state', state);
 
       // Add listener before opening popup
@@ -109,22 +105,16 @@ export default function Home() {
   const checkDiscogsAuthStatus = async () => {
     try {
       const state = localStorage.getItem('discogs_state');
-      console.log(`checking authorization with state ${state}...`);
 
       if (state) {
         const response = await axios.get<DiscogsCheckAuthResponse>(
           `${BASE_URL}/check_authorization?state=${state}`
         );
-        if (response.data.authorized) {
-          console.log('User is authorized with Discogs');
-
-          return true;
-        } else {
-          console.log('User is not authorized with Discogs');
-          return false;
-        }
+        if (response.data) {
+          return response.data.authorized;
+        } else return false;
       } else {
-        console.log('user state not present');
+        // if no state means unauthorized
         return false;
       }
     } catch (error) {
@@ -156,7 +146,7 @@ export default function Home() {
         const response = await axios.get<DiscogsLibraryResponse>(
           `${BASE_URL}/get_library?state=${state}`
         );
-        console.log(response.data);
+
         const { user_info, library } = response.data;
 
         if (user_info) {
@@ -177,10 +167,6 @@ export default function Home() {
           setDiscogsFolders(formattedFolders);
           setDiscogsIsLoading(false);
         }
-      } else {
-        console.log(
-          'importing Discogs Library failed: User is not authorized.'
-        );
       }
     } catch (error) {
       console.error('Error importing from Discogs:', error);
