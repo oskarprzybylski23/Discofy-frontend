@@ -493,9 +493,9 @@ export default function Home() {
             >
               <path
                 d='M4.97.47a.75.75 0 0 0 0 1.06L11.44 8l-6.47 6.47a.75.75 0 1 0 1.06 1.06L13.56 8 6.03.47a.75.75 0 0 0-1.06 0z'
-                stroke-width='1'
-                stroke-linecap='round'
-                stroke-linejoin='round'
+                strokeWidth='1'
+                strokeLinecap='round'
+                strokeLinejoin='round'
               />
             </svg>
           </Button>
