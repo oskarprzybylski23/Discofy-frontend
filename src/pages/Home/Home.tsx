@@ -101,7 +101,7 @@ export default function Home() {
         if (event.data === 'authorizationComplete') {
           popup?.close();
           // Import user library once authorization is complete
-          handleDiscogsImport();
+          discogsImportUserFolders();
           cleanup();
         }
       };
@@ -170,14 +170,14 @@ export default function Home() {
 
       const isAuthorized = await checkDiscogsAuthStatus();
       if (isAuthorized) {
-        await handleDiscogsImport();
+        await discogsImportUserFolders();
       }
     };
 
     initializeUser();
   }, []);
 
-  const handleDiscogsImport = async () => {
+  const discogsImportUserFolders = async () => {
     try {
       setDiscogsIsLoading(true);
       const state = localStorage.getItem('discogs_state');
