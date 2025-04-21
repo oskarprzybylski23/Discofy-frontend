@@ -218,12 +218,10 @@ export default function Home() {
     }
   };
 
-  const handleFolderClick = async (folderId: number) => {
-    try {
-      DiscogsImportFolderItems(folderId);
-    } catch (error) {
+  const handleFolderClick = (folderId: number) => {
+    DiscogsImportFolderItems(folderId).catch((error) => {
       console.error('Error handling folder click:', error);
-    }
+    });
   };
 
   const DiscogsImportFolderItems = async (folderId: number) => {
