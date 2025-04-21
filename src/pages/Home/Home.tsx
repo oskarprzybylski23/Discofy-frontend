@@ -62,8 +62,12 @@ const defaultDiscogsUser: DiscogsUser = {
 export default function Home() {
   const [discogsUser, setDiscogsUser] =
     useState<DiscogsUser>(defaultDiscogsUser);
-  const [discogsFolders, setDiscogsFolders] = useState<DiscogsFolder[]>([]);
   const [discogsIsLoading, setDiscogsIsLoading] = useState(false);
+  const [discogsFolders, setDiscogsFolders] = useState<DiscogsFolder[]>([]);
+  const [discogsFolderItemsCache, setDiscogsFolderItemsCache] = useState<
+    Record<number, any[]>
+  >({});
+  const [activeFolderId, setActiveFolderId] = useState<number | null>(null);
 
   const handleDiscogsLogin = async () => {
     // Handle Discogs authorization protocol:
@@ -214,15 +218,59 @@ export default function Home() {
     }
   };
 
+  const handleFolderClick = async (folderId: number) => {
+    try {
+      DiscogsImportFolderItems(folderId);
+    } catch (error) {
+      console.error('Error handling folder click:', error);
+    }
+  };
+
+  const DiscogsImportFolderItems = async (folderId: number) => {
+    // If cached, just update active folder ID to display contents
+    if (discogsFolderItemsCache[folderId]) {
+      setActiveFolderId(folderId);
+      return;
+    }
+    // Else, fetch folder items
+    try {
+      setDiscogsIsLoading(true);
+      const state = localStorage.getItem('discogs_state');
+
+      if (state) {
+        const response = await axios.get(`${BASE_URL}/get_collection`, {
+          params: { folder: folderId, state: state },
+        });
+
+        if (response.data && Array.isArray(response.data)) {
+          // Cache the folder items
+          setDiscogsFolderItemsCache((prev) => ({
+            ...prev,
+            [folderId]: response.data,
+          }));
+
+          // Show the folder
+          setActiveFolderId(folderId);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching folder contents:', error);
+    } finally {
+      setDiscogsIsLoading(false);
+    }
+  };
+
   const handleDiscogsLogout = () => {
     localStorage.clear();
-    // Clear user + folders
+    // Clear user and cache + reset display
     setDiscogsUser({
       loggedIn: false,
       name: '',
       profileUrl: '',
     });
     setDiscogsFolders([]);
+    setDiscogsFolderItemsCache([]);
+    setActiveFolderId(null);
   };
 
   return (
@@ -253,14 +301,38 @@ export default function Home() {
             spinnerText='Fetching Discogs...'
             isLoading={discogsIsLoading}
           >
-            {discogsFolders.map((folder, i) => (
-              <FolderItem
-                key={folder.id}
-                index={i}
-                name={folder.name}
-                count={folder.count}
-              />
-            ))}
+            {activeFolderId !== null ? (
+              <>
+                <Button
+                  onClick={() => setActiveFolderId(null)}
+                  variant='secondary'
+                  className='mb-2'
+                >
+                  ← Back to folders
+                </Button>
+                {discogsFolderItemsCache[activeFolderId]?.map((album, i) => (
+                  <AlbumItem
+                    key={`${album.title}-${i}`}
+                    index={i}
+                    title={album.title}
+                    artist={album.artist}
+                    coverUrl={album.cover}
+                  />
+                ))}
+              </>
+            ) : (
+              discogsFolders.map((folder, i) => (
+                <FolderItem
+                  key={folder.id}
+                  index={i}
+                  name={folder.name}
+                  count={folder.count}
+                  onClick={() =>
+                    handleFolderClick(parseInt(folder.id.replace('f', '')))
+                  }
+                />
+              ))
+            )}
           </ListContainer>
         </div>
 
