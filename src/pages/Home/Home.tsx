@@ -177,10 +177,12 @@ export default function Home() {
     }
   };
 
-  const handleFolderClick = (folderId: number) => {
+  const handleFolderClick = (folderId: number, folderName: string) => {
     DiscogsImportFolderItems(folderId).catch((error) => {
       console.error('Error handling folder click:', error);
     });
+    // give playlist name default value
+    setPlaylistName(`Discogs Collection [${folderName}]`);
   };
 
   const DiscogsImportFolderItems = async (folderId: number) => {
@@ -464,7 +466,10 @@ export default function Home() {
                   name={folder.name}
                   count={folder.count}
                   onClick={() =>
-                    handleFolderClick(parseInt(folder.id.replace('f', '')))
+                    handleFolderClick(
+                      parseInt(folder.id.replace('f', '')),
+                      folder.name
+                    )
                   }
                 />
               ))
@@ -523,12 +528,13 @@ export default function Home() {
             <input
               type='text'
               placeholder='Enter your playlist name'
+              value={playlistName ? playlistName : undefined}
               disabled={!spotifyPlaylist}
               onChange={(e) => setPlaylistName(e.target.value)}
               className='rounded-full px-4 py-2 text-sm bg-white-background text-font-dark border border-gray-300 w-full disabled:opacity-50'
             />
             <Button
-              disabled={!spotifyPlaylist}
+              disabled={!spotifyPlaylist || playlistName.length == 0}
               onClick={() =>
                 console.log('Create playlist with name:', playlistName)
               }
