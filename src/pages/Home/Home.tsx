@@ -16,6 +16,7 @@ import {
   SpotifyAuthorizeResponse,
   SpotifyAuthCheckResponse,
   SpotifyTransferResponse,
+  CreatePlaylistResponse,
 } from '../../types/discogs';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -40,6 +41,7 @@ export default function Home() {
     SpotifyAlbumItem[] | null
   >(null);
   const [playlistName, setPlaylistName] = useState<string>('');
+  const [playlistUrl, setPlaylistUrl] = useState<string>('');
 
   const handleDiscogsLogin = async () => {
     // Handle Discogs authorization protocol:
@@ -357,7 +359,6 @@ export default function Home() {
                 },
               }
             );
-            console.log(response);
             const exportData = response.data;
             handleExportData(exportData);
           }
@@ -404,6 +405,51 @@ export default function Home() {
       }
     }
     setSpotifyPlaylist(playlistData);
+  };
+
+  const handleCreatePlaylist = async () => {
+    try {
+      if (spotifyUser.loggedIn) {
+        if (spotifyPlaylist) {
+          setSpotifyIsLoading(true);
+          const state = localStorage.getItem('spotify_state');
+          const playlist_items = spotifyPlaylist;
+          if (state) {
+            const response = await axios.post<CreatePlaylistResponse>(
+              `${BASE_URL}/create_playlist`,
+              {
+                state,
+                playlist: playlist_items,
+                playlist_name: playlistName,
+              },
+              {
+                withCredentials: true,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+
+            if (response.data.status == 'success' && response.data.url) {
+              setPlaylistUrl(response.data.url);
+              // handle actions like display a modal etc.
+            } else {
+              console.error('Playlist could not be created this time.');
+            }
+          }
+        } else {
+          console.error('No playlist available to be created.');
+        }
+      } else {
+        console.error(
+          'To create a playlist user has to be logged in to Spotify.'
+        );
+      }
+    } catch (error) {
+      console.error('Error creating playlist:', error);
+    } finally {
+      setSpotifyIsLoading(false);
+    }
   };
 
   return (
@@ -537,9 +583,7 @@ export default function Home() {
             />
             <Button
               disabled={!spotifyPlaylist || playlistName.length == 0}
-              onClick={() =>
-                console.log('Create playlist with name:', playlistName)
-              }
+              onClick={handleCreatePlaylist}
             >
               Create Playlist
             </Button>

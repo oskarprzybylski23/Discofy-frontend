@@ -70,3 +70,9 @@ export type SpotifyAlbumItem = {
 };
 
 export type SpotifyTransferResponse = SpotifyAlbumItem[];
+
+export type CreatePlaylistResponse = {
+  status: 'success' | 'error';
+  message: string;
+  url: string | null;
+};
