@@ -280,17 +280,19 @@ export default function Home() {
     <div className='flex flex-col items-center space-y-6 w-full'>
       {/* Top action buttons */}
       <div className='flex flex-wrap gap-4 justify-center'>
-        <Button onClick={handleDiscogsLogin} variant='secondary'>
-          Import from Discogs
+        <Button
+          onClick={
+            discogsUser.loggedIn ? handleDiscogsLogout : handleDiscogsLogin
+          }
+          variant='secondary'
+        >
+          {discogsUser.loggedIn ? 'Disconnect Discogs' : 'Connect to Discogs'}
         </Button>
         <Button onClick={() => console.log('Spotify')} variant='secondary'>
           Login to Spotify
         </Button>
         <Button disabled variant='secondary'>
           Save Report
-        </Button>
-        <Button onClick={handleDiscogsLogout} variant='secondary'>
-          Logout
         </Button>
       </div>
 
