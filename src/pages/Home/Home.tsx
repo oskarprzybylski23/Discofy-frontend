@@ -169,11 +169,12 @@ export default function Home() {
           }));
 
           setDiscogsFolders(formattedFolders);
-          setDiscogsIsLoading(false);
         }
       }
     } catch (error) {
       console.error('Error importing from Discogs:', error);
+    } finally {
+      setDiscogsIsLoading(false);
     }
   };
 
@@ -359,7 +360,6 @@ export default function Home() {
             console.log(response);
             const exportData = response.data;
             handleExportData(exportData);
-            setSpotifyIsLoading(false);
           }
         } else {
           console.error('No collection to move: folder not selected.');
@@ -371,6 +371,8 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error getting Discogs items from Spotify catalog:', error);
+    } finally {
+      setSpotifyIsLoading(false);
     }
   };
 
