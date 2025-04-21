@@ -13,6 +13,9 @@ import {
   DiscogsFolder,
   DiscogsAlbumItem,
   SpotifyAlbumItem,
+  SpotifyAuthorizeResponse,
+  SpotifyAuthCheckResponse,
+  SpotifyTransferResponse,
 } from '../../types/discogs';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -236,7 +239,9 @@ export default function Home() {
     // - handle auth popup to prompt user to authorize
     // - once authorized, check Spotify auth status to get user info to be displayed
     try {
-      const response = await axios.get(`${BASE_URL}/spotify_auth_url`);
+      const response = await axios.get<SpotifyAuthorizeResponse>(
+        `${BASE_URL}/spotify_auth_url`
+      );
       const { authorize_url, state } = response.data;
 
       if (!authorize_url) {
@@ -292,7 +297,7 @@ export default function Home() {
       const state = localStorage.getItem('spotify_state');
 
       if (state) {
-        const response = await axios.get(
+        const response = await axios.get<SpotifyAuthCheckResponse>(
           `${BASE_URL}/check_spotify_authorization`,
           {
             params: { state },
@@ -335,7 +340,7 @@ export default function Home() {
           const state = localStorage.getItem('spotify_state');
           const collection_items = discogsFolderItemsCache[activeFolderId];
           if (state) {
-            const response = await axios.post(
+            const response = await axios.post<SpotifyTransferResponse>(
               `${BASE_URL}/transfer_to_spotify`,
               {
                 state,
@@ -348,6 +353,7 @@ export default function Home() {
                 },
               }
             );
+            console.log(response);
             const exportData = response.data;
             handleExportData(exportData);
             setSpotifyIsLoading(false);
