@@ -477,7 +477,9 @@ export default function Home() {
           <Button
             onClick={handleMoveCollection}
             variant='secondary'
-            disabled={!discogsUser.loggedIn || !spotifyUser.loggedIn}
+            disabled={
+              !discogsUser.loggedIn || !spotifyUser.loggedIn || !activeFolderId
+            }
           >
             Move Collection
             <svg
@@ -523,7 +525,7 @@ export default function Home() {
               placeholder='Enter your playlist name'
               disabled={!spotifyPlaylist}
               onChange={(e) => setPlaylistName(e.target.value)}
-              className='rounded-full px-4 py-2 text-sm bg-white-background text-font-dark border border-gray-300 w-full'
+              className='rounded-full px-4 py-2 text-sm bg-white-background text-font-dark border border-gray-300 w-full disabled:opacity-50'
             />
             <Button
               disabled={!spotifyPlaylist}
