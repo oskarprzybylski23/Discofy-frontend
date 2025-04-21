@@ -9,22 +9,22 @@ import {
   DiscogsCheckAuthResponse,
   DiscogsLibraryResponse,
   DiscogsCollectionResponse,
-  DiscogsUser,
+  User,
   DiscogsFolder,
   DiscogsAlbumItem,
 } from '../../types/discogs';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
-const defaultDiscogsUser: DiscogsUser = {
+const defaultUser: User = {
   loggedIn: false,
   name: '',
   profileUrl: '',
 };
 
 export default function Home() {
-  const [discogsUser, setDiscogsUser] =
-    useState<DiscogsUser>(defaultDiscogsUser);
+  const [discogsUser, setDiscogsUser] = useState<User>(defaultUser);
+  const [spotifyUser, setSpotifyUser] = useState<User>(defaultUser);
   const [discogsIsLoading, setDiscogsIsLoading] = useState(false);
   const [discogsFolders, setDiscogsFolders] = useState<DiscogsFolder[]>([]);
   const [discogsFolderItemsCache, setDiscogsFolderItemsCache] = useState<
@@ -126,9 +126,10 @@ export default function Home() {
       console.error('Error checking Discogs authorization:', error);
     }
   };
-  // Check if user is logged in to Discogs on page load
+  // Check if user is logged in to Discogs or Spotify on page load
   useEffect(() => {
     const initializeUser = async () => {
+      checkSpotifyAuthStatus();
       if (discogsUser.loggedIn) return; // Avoid re-import if already logged in
 
       const isAuthorized = await checkDiscogsAuthStatus();
@@ -225,7 +226,7 @@ export default function Home() {
   };
 
   const handleDiscogsLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem('discogs_state');
     // Clear user and cache + reset display
     setDiscogsUser({
       loggedIn: false,
@@ -235,6 +236,103 @@ export default function Home() {
     setDiscogsFolders([]);
     setDiscogsFolderItemsCache([]);
     setActiveFolderId(null);
+    // TODO: create backend route /DiscogsLogout to handle backend logout actions
+  };
+
+  const handleSpotifyLogin = async () => {
+    // Handle Spotify authorization protocol:
+    // - get auth URL and state ID
+    // - handle auth popup to prompt user to authorize
+    // - once authorized, check Spotify auth status to get user info to be displayed
+    try {
+      const response = await axios.get(`${BASE_URL}/spotify_auth_url`);
+      const { authorize_url, state } = response.data;
+
+      if (!authorize_url) {
+        console.error('No authorize URL received from backend.');
+        return;
+      }
+
+      localStorage.setItem('spotify_state', state);
+
+      // Add listener before opening popup
+      const listener = (event: MessageEvent) => {
+        if (event.data === 'authorizationComplete') {
+          popup?.close();
+          checkSpotifyAuthStatus();
+          cleanup();
+        }
+      };
+
+      const cleanup = () => {
+        window.removeEventListener('message', listener);
+        clearInterval(popupCheckInterval);
+      };
+
+      window.addEventListener('message', listener);
+
+      // Open popup
+      const popup = window.open(
+        authorize_url,
+        'Spotify Login',
+        'width=600,height=700'
+      );
+
+      if (!popup) {
+        console.error('Popup was blocked.');
+        cleanup();
+        return;
+      }
+
+      // Poll popup to detect early close
+      const popupCheckInterval = setInterval(() => {
+        if (popup.closed) {
+          console.warn('Popup closed before auth completed.');
+          cleanup();
+        }
+      }, 500);
+    } catch (error) {
+      console.error('Error during Spotify login:', error);
+    }
+  };
+
+  const checkSpotifyAuthStatus = async () => {
+    try {
+      const state = localStorage.getItem('spotify_state');
+
+      if (state) {
+        const response = await axios.get(
+          `${BASE_URL}/check_spotify_authorization`,
+          {
+            params: { state },
+            withCredentials: true,
+          }
+        );
+
+        const user_info = response.data;
+
+        if (user_info) {
+          setSpotifyUser({
+            loggedIn: true,
+            name: user_info.username,
+            profileUrl: user_info.url,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error checking Spotify authorization:', error);
+    }
+  };
+
+  const handleSpotifyLogout = () => {
+    localStorage.removeItem('spotify_state');
+    // Clear user and cache + reset display
+    setSpotifyUser({
+      loggedIn: false,
+      name: '',
+      profileUrl: '',
+    });
+    // TODO: Clear displayed playlists
     // TODO: create backend route /DiscogsLogout to handle backend logout actions
   };
 
@@ -250,8 +348,13 @@ export default function Home() {
         >
           {discogsUser.loggedIn ? 'Disconnect Discogs' : 'Connect to Discogs'}
         </Button>
-        <Button onClick={() => console.log('Spotify')} variant='secondary'>
-          Login to Spotify
+        <Button
+          onClick={
+            spotifyUser.loggedIn ? handleSpotifyLogout : handleSpotifyLogin
+          }
+          variant='secondary'
+        >
+          {spotifyUser.loggedIn ? 'Disconnect Spotify' : 'Connect to Spotify'}
         </Button>
         <Button disabled variant='secondary'>
           Save Report
@@ -333,11 +436,7 @@ export default function Home() {
         <div>
           <ListContainer
             title='Spotify Playlist'
-            loggedInUser={{
-              loggedIn: true,
-              name: 'oskar_przybylski23',
-              profileUrl: 'https://open.spotify.com/user/oskar_przybylski23',
-            }}
+            loggedInUser={spotifyUser}
             spinnerText='Fetching Spotify...'
           ></ListContainer>
           {/* Playlist input + create button */}

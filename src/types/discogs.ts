@@ -23,7 +23,7 @@ export interface DiscogsLibraryResponse {
   user_info: DiscogsUserInfoResponse;
 }
 
-export interface DiscogsUser {
+export interface User {
   loggedIn: boolean;
   name: string;
   profileUrl: string;
