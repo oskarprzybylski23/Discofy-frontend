@@ -29,8 +29,8 @@ const defaultUser: User = {
 export default function Home() {
   const [discogsUser, setDiscogsUser] = useState<User>(defaultUser);
   const [spotifyUser, setSpotifyUser] = useState<User>(defaultUser);
-  const [discogsIsLoading, setDiscogsIsLoading] = useState(false);
-  const [spotifyIsLoading, setSpotifyIsLoading] = useState(false);
+  const [discogsIsLoading, setDiscogsIsLoading] = useState<boolean>(false);
+  const [spotifyIsLoading, setSpotifyIsLoading] = useState<boolean>(false);
   const [discogsFolders, setDiscogsFolders] = useState<DiscogsFolder[]>([]);
   const [discogsFolderItemsCache, setDiscogsFolderItemsCache] = useState<
     Record<number, DiscogsAlbumItem[]>
