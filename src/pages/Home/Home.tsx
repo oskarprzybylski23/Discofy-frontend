@@ -36,9 +36,10 @@ export default function Home() {
     Record<number, DiscogsAlbumItem[]>
   >({});
   const [activeFolderId, setActiveFolderId] = useState<number | null>(null);
-  const [spotifyPlaylist, setSpotifyPlaylist] = useState<SpotifyAlbumItem[]>(
-    []
-  );
+  const [spotifyPlaylist, setSpotifyPlaylist] = useState<
+    SpotifyAlbumItem[] | null
+  >(null);
+  const [playlistName, setPlaylistName] = useState<string>('');
 
   const handleDiscogsLogin = async () => {
     // Handle Discogs authorization protocol:
@@ -328,7 +329,7 @@ export default function Home() {
       name: '',
       profileUrl: '',
     });
-    setSpotifyPlaylist([]);
+    setSpotifyPlaylist(null);
     // TODO: create backend route /DiscogsLogout to handle backend logout actions
   };
 
@@ -473,7 +474,11 @@ export default function Home() {
 
         {/* Middle column with move button */}
         <div className='flex justify-center items-center p-8'>
-          <Button onClick={handleMoveCollection} variant='secondary'>
+          <Button
+            onClick={handleMoveCollection}
+            variant='secondary'
+            disabled={!discogsUser.loggedIn || !spotifyUser.loggedIn}
+          >
             Move Collection
             <svg
               id='svg-arrow'
@@ -516,10 +521,18 @@ export default function Home() {
             <input
               type='text'
               placeholder='Enter your playlist name'
-              disabled
+              disabled={!spotifyPlaylist}
+              onChange={(e) => setPlaylistName(e.target.value)}
               className='rounded-full px-4 py-2 text-sm bg-white-background text-font-dark border border-gray-300 w-full'
             />
-            <Button disabled>Create Playlist</Button>
+            <Button
+              disabled={!spotifyPlaylist}
+              onClick={() =>
+                console.log('Create playlist with name:', playlistName)
+              }
+            >
+              Create Playlist
+            </Button>
           </div>
         </div>
       </div>
