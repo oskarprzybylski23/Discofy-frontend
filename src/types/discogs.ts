@@ -34,3 +34,15 @@ export interface DiscogsFolder {
   name: string;
   count: number;
 }
+
+export type DiscogsAlbumItem = {
+  artist: string;
+  cover: string;
+  discogs_id: number;
+  index: number;
+  title: string;
+  url: string;
+  year: number;
+};
+
+export type DiscogsCollectionResponse = DiscogsAlbumItem[];

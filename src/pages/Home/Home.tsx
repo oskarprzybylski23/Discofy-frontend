@@ -8,8 +8,10 @@ import {
   DiscogsAuthorizeResponse,
   DiscogsCheckAuthResponse,
   DiscogsLibraryResponse,
+  DiscogsCollectionResponse,
   DiscogsUser,
   DiscogsFolder,
+  DiscogsAlbumItem,
 } from '../../types/discogs';
 
 const mockAlbums = [
@@ -65,7 +67,7 @@ export default function Home() {
   const [discogsIsLoading, setDiscogsIsLoading] = useState(false);
   const [discogsFolders, setDiscogsFolders] = useState<DiscogsFolder[]>([]);
   const [discogsFolderItemsCache, setDiscogsFolderItemsCache] = useState<
-    Record<number, any[]>
+    Record<number, DiscogsAlbumItem[]>
   >({});
   const [activeFolderId, setActiveFolderId] = useState<number | null>(null);
 
@@ -236,9 +238,12 @@ export default function Home() {
       const state = localStorage.getItem('discogs_state');
 
       if (state) {
-        const response = await axios.get(`${BASE_URL}/get_collection`, {
-          params: { folder: folderId, state: state },
-        });
+        const response = await axios.get<DiscogsCollectionResponse>(
+          `${BASE_URL}/get_collection`,
+          {
+            params: { folder: folderId, state: state },
+          }
+        );
 
         if (response.data && Array.isArray(response.data)) {
           // Cache the folder items
