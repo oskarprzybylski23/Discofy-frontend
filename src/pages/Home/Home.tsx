@@ -14,45 +14,6 @@ import {
   DiscogsAlbumItem,
 } from '../../types/discogs';
 
-const mockAlbums = [
-  {
-    id: '1',
-    title: 'Discovery',
-    artist: 'Daft Punk',
-    cover: 'https://via.placeholder.com/100',
-  },
-  {
-    id: '2',
-    title: 'Random Access Memories',
-    artist: 'Daft Punk',
-    cover: 'https://via.placeholder.com/100',
-  },
-  {
-    id: '1',
-    title: 'Discovery',
-    artist: 'Daft Punk',
-    cover: 'https://via.placeholder.com/100',
-  },
-  {
-    id: '2',
-    title: 'Random Access Memories',
-    artist: 'Daft Punk',
-    cover: 'https://via.placeholder.com/100',
-  },
-  {
-    id: '1',
-    title: 'Discovery',
-    artist: 'Daft Punk',
-    cover: 'https://via.placeholder.com/100',
-  },
-  {
-    id: '2',
-    title: 'Random Access Memories',
-    artist: 'Daft Punk',
-    cover: 'https://via.placeholder.com/100',
-  },
-];
-
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 const defaultDiscogsUser: DiscogsUser = {
@@ -274,6 +235,7 @@ export default function Home() {
     setDiscogsFolders([]);
     setDiscogsFolderItemsCache([]);
     setActiveFolderId(null);
+    // TODO: create backend route /DiscogsLogout to handle backend logout actions
   };
 
   return (
@@ -377,17 +339,7 @@ export default function Home() {
               profileUrl: 'https://open.spotify.com/user/oskar_przybylski23',
             }}
             spinnerText='Fetching Spotify...'
-          >
-            {mockAlbums.map((album, i) => (
-              <AlbumItem
-                key={album.id}
-                index={i}
-                title={album.title}
-                artist={album.artist}
-                coverUrl={album.cover}
-              />
-            ))}
-          </ListContainer>
+          ></ListContainer>
           {/* Playlist input + create button */}
           <div className='mt-4 flex gap-2'>
             <input
