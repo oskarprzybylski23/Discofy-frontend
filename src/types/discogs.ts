@@ -46,3 +46,14 @@ export type DiscogsAlbumItem = {
 };
 
 export type DiscogsCollectionResponse = DiscogsAlbumItem[];
+
+export type SpotifyAlbumItem = {
+  artist: string;
+  title: string;
+  image: string;
+  url: string;
+  id: string;
+  uri: string;
+  discogs_id: string;
+  found: boolean;
+};

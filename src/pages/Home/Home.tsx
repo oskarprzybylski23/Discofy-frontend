@@ -12,6 +12,7 @@ import {
   User,
   DiscogsFolder,
   DiscogsAlbumItem,
+  SpotifyAlbumItem,
 } from '../../types/discogs';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -26,11 +27,15 @@ export default function Home() {
   const [discogsUser, setDiscogsUser] = useState<User>(defaultUser);
   const [spotifyUser, setSpotifyUser] = useState<User>(defaultUser);
   const [discogsIsLoading, setDiscogsIsLoading] = useState(false);
+  const [spotifyIsLoading, setSpotifyIsLoading] = useState(false);
   const [discogsFolders, setDiscogsFolders] = useState<DiscogsFolder[]>([]);
   const [discogsFolderItemsCache, setDiscogsFolderItemsCache] = useState<
     Record<number, DiscogsAlbumItem[]>
   >({});
   const [activeFolderId, setActiveFolderId] = useState<number | null>(null);
+  const [spotifyPlaylist, setSpotifyPlaylist] = useState<SpotifyAlbumItem[]>(
+    []
+  );
 
   const handleDiscogsLogin = async () => {
     // Handle Discogs authorization protocol:
@@ -332,8 +337,76 @@ export default function Home() {
       name: '',
       profileUrl: '',
     });
-    // TODO: Clear displayed playlists
+    setSpotifyPlaylist([]);
     // TODO: create backend route /DiscogsLogout to handle backend logout actions
+  };
+
+  const handleMoveCollection = async () => {
+    try {
+      if (spotifyUser.loggedIn && discogsUser.loggedIn) {
+        if (activeFolderId) {
+          setSpotifyIsLoading(true);
+          const state = localStorage.getItem('spotify_state');
+          const collection_items = discogsFolderItemsCache[activeFolderId];
+          if (state) {
+            const response = await axios.post(
+              `${BASE_URL}/transfer_to_spotify`,
+              {
+                state,
+                collection: collection_items,
+              },
+              {
+                withCredentials: true,
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+            const exportData = response.data;
+            handleExportData(exportData);
+            setSpotifyIsLoading(false);
+          }
+        } else {
+          console.error('No collection to move: folder not selected.');
+        }
+      } else {
+        console.error(
+          'To transfer collection user has to logged in to both Discogs and Spotify.'
+        );
+      }
+    } catch (error) {
+      console.error('Error getting Discogs items from Spotify catalog:', error);
+    }
+  };
+
+  const handleExportData = (exportData: any) => {
+    const playlistData: SpotifyAlbumItem[] = [];
+    const notFoundItems = [];
+
+    for (let i = 0; i < exportData.length; i++) {
+      const item = exportData[i];
+      if (item.found) {
+        // Collect items that were matched successfully with Spotify albums
+        playlistData.push({
+          artist: item.artist,
+          title: item.title,
+          image: item.image,
+          url: item.url,
+          id: item.id,
+          uri: item.uri,
+          discogs_id: item.discogs_id,
+          found: true,
+        });
+      } else {
+        // Collect items that weren't found
+        notFoundItems.push({
+          ...item,
+          notFound: true,
+        });
+        // TODO: handle flags for albums not found
+      }
+    }
+    setSpotifyPlaylist(playlistData);
   };
 
   return (
@@ -382,7 +455,7 @@ export default function Home() {
                 </Button>
                 {discogsFolderItemsCache[activeFolderId]?.map((album, i) => (
                   <AlbumItem
-                    key={`${album.title}-${i}`}
+                    key={`disc-${album.title}-${i}`}
                     index={i}
                     title={album.title}
                     artist={album.artist}
@@ -408,11 +481,7 @@ export default function Home() {
 
         {/* Middle column with move button */}
         <div className='flex justify-center items-center p-8'>
-          <Button
-            disabled
-            onClick={() => console.log('Move Collection')}
-            variant='secondary'
-          >
+          <Button onClick={handleMoveCollection} variant='secondary'>
             Move Collection
             <svg
               id='svg-arrow'
@@ -438,7 +507,18 @@ export default function Home() {
             title='Spotify Playlist'
             loggedInUser={spotifyUser}
             spinnerText='Fetching Spotify...'
-          ></ListContainer>
+            isLoading={spotifyIsLoading}
+          >
+            {spotifyPlaylist?.map((album, i) => (
+              <AlbumItem
+                key={`spot-${album.title}-${i}`}
+                index={i}
+                title={album.title}
+                artist={album.artist}
+                coverUrl={album.image}
+              />
+            ))}
+          </ListContainer>
           {/* Playlist input + create button */}
           <div className='mt-4 flex gap-2'>
             <input
