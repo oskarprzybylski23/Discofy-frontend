@@ -42,6 +42,7 @@ export default function Home() {
   >(null);
   const [playlistName, setPlaylistName] = useState<string>('');
   const [playlistUrl, setPlaylistUrl] = useState<string>('');
+  const [notFoundItems, setNotFoundItems] = useState<any[]>([]);
 
   const handleDiscogsLogin = async () => {
     // Handle Discogs authorization protocol:
@@ -404,6 +405,8 @@ export default function Home() {
         // TODO: handle flags for albums not found
       }
     }
+    setNotFoundItems(notFoundItems);
+    console.log(notFoundItems);
     setSpotifyPlaylist(playlistData);
   };
 
@@ -498,11 +501,14 @@ export default function Home() {
                 </Button>
                 {discogsFolderItemsCache[activeFolderId]?.map((album, i) => (
                   <AlbumItem
-                    key={`disc-${album.title}-${i}`}
+                    key={`disc-${album.discogs_id}-${i}`}
                     index={i}
                     title={album.title}
                     artist={album.artist}
                     coverUrl={album.cover}
+                    highlight={notFoundItems.some(
+                      (item) => item.discogs_id === album.discogs_id
+                    )}
                   />
                 ))}
               </>
