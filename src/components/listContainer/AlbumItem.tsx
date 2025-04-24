@@ -5,7 +5,7 @@ type AlbumItemProps = {
   title: string;
   artist: string;
   coverUrl: string;
-  highlight: boolean;
+  highlight?: boolean;
   className?: string;
 };
 
