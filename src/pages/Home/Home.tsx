@@ -234,7 +234,7 @@ export default function Home() {
       profileUrl: '',
     });
     setDiscogsFolders([]);
-    setDiscogsFolderItemsCache([]);
+    setDiscogsFolderItemsCache({});
     setActiveFolderId(null);
     // TODO: create backend route /DiscogsLogout to handle backend logout actions
   };
