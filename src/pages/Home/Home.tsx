@@ -1,9 +1,10 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import Button from '../../components/button/Button';
 import ListContainer from '../../components/listContainer/ListContainer';
 import AlbumItem from '../../components/listContainer/AlbumItem';
 import FolderItem from '../../components/listContainer/FolderItem';
+import { Button } from '@/components/ui/button';
+
 import {
   DiscogsAuthorizeResponse,
   DiscogsCheckAuthResponse,
@@ -469,7 +470,7 @@ export default function Home() {
           onClick={
             spotifyUser.loggedIn ? handleSpotifyLogout : handleSpotifyLogin
           }
-          variant='secondary'
+          variant='destructive'
         >
           {spotifyUser.loggedIn ? 'Disconnect Spotify' : 'Connect to Spotify'}
         </Button>
@@ -588,6 +589,7 @@ export default function Home() {
             <Button
               disabled={!spotifyPlaylist || playlistName.length == 0}
               onClick={handleCreatePlaylist}
+              variant='default'
             >
               Create Playlist
             </Button>
