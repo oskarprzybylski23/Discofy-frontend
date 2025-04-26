@@ -4,6 +4,7 @@ import ListContainer from '../../components/listContainer/ListContainer';
 import AlbumItem from '../../components/listContainer/AlbumItem';
 import FolderItem from '../../components/listContainer/FolderItem';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 import {
   DiscogsAuthorizeResponse,
@@ -470,7 +471,7 @@ export default function Home() {
           onClick={
             spotifyUser.loggedIn ? handleSpotifyLogout : handleSpotifyLogin
           }
-          variant='destructive'
+          variant='secondary'
         >
           {spotifyUser.loggedIn ? 'Disconnect Spotify' : 'Connect to Spotify'}
         </Button>
@@ -578,13 +579,12 @@ export default function Home() {
           </ListContainer>
           {/* Playlist input + create button */}
           <div className='mt-4 flex gap-2'>
-            <input
+            <Input
               type='text'
               placeholder='Enter your playlist name'
               value={playlistName ? playlistName : undefined}
               disabled={!spotifyPlaylist}
               onChange={(e) => setPlaylistName(e.target.value)}
-              className='rounded-full px-4 py-2 text-sm bg-white-background text-font-dark border border-gray-300 w-full disabled:opacity-50'
             />
             <Button
               disabled={!spotifyPlaylist || playlistName.length == 0}
