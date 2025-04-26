@@ -448,8 +448,8 @@ export default function Home() {
             );
 
             if (response.data.status == 'success' && response.data.url) {
-              setPlaylistUrl(response.data.url);
-              console.log(playlistUrl);
+              const url = response.data.url;
+              setPlaylistUrl(url);
               // display user dialog
               setDialogTitle('Playlist Created!');
               setDialogDescription(
@@ -464,7 +464,7 @@ export default function Home() {
                   <p>
                     Check it out here:{' '}
                     <a
-                      href={playlistUrl}
+                      href={url}
                       target='_blank'
                       rel='noopener noreferrer'
                       className='underline'
