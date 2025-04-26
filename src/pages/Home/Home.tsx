@@ -112,7 +112,6 @@ export default function Home() {
   const checkDiscogsAuthStatus = async () => {
     try {
       const state = localStorage.getItem('discogs_state');
-
       if (state) {
         const response = await axios.get<DiscogsCheckAuthResponse>(
           `${BASE_URL}/check_authorization?state=${state}`
@@ -147,7 +146,6 @@ export default function Home() {
     try {
       setDiscogsIsLoading(true);
       const state = localStorage.getItem('discogs_state');
-      //   const userAuthorized = await checkDiscogsAuthStatus();
 
       if (state) {
         const response = await axios.get<DiscogsLibraryResponse>(
@@ -155,7 +153,7 @@ export default function Home() {
         );
 
         const { user_info, library } = response.data;
-
+        // TODO: move user info retrieval to checkDiscogsAuth()
         if (user_info) {
           setDiscogsUser({
             loggedIn: true,
@@ -314,7 +312,7 @@ export default function Home() {
 
         const user_info = response.data;
 
-        if (user_info) {
+        if (user_info.authorized) {
           setSpotifyUser({
             loggedIn: true,
             name: user_info.username,
