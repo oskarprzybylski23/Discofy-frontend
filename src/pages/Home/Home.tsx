@@ -5,6 +5,15 @@ import AlbumItem from '../../components/listContainer/AlbumItem';
 import FolderItem from '../../components/listContainer/FolderItem';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { UserDialog } from '@/components/modal/userDialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 import {
   DiscogsAuthorizeResponse,
@@ -45,6 +54,11 @@ export default function Home() {
   const [playlistName, setPlaylistName] = useState<string>('');
   const [playlistUrl, setPlaylistUrl] = useState<string>('');
   const [notFoundItems, setNotFoundItems] = useState<any[]>([]);
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [dialogTitle, setDialogTitle] = useState<string>('');
+  const [dialogDescription, setDialogDescription] =
+    useState<React.ReactNode>('');
+  const [dialogContent, setDialogContent] = useState<React.ReactNode>(null);
 
   const handleDiscogsLogin = async () => {
     // Handle Discogs authorization protocol:
@@ -435,12 +449,55 @@ export default function Home() {
 
             if (response.data.status == 'success' && response.data.url) {
               setPlaylistUrl(response.data.url);
-              // handle actions like display a modal etc.
+              console.log(playlistUrl);
+              // display user dialog
+              setDialogTitle('Playlist Created!');
+              setDialogDescription(
+                'Your playlist was successfully created on Spotify.'
+              );
+              setDialogContent(
+                <>
+                  <p>
+                    {spotifyPlaylist?.length} albums were added to your
+                    playlist.
+                  </p>
+                  <p>
+                    Check it out here:{' '}
+                    <a
+                      href={playlistUrl}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='underline'
+                    >
+                      {playlistName}
+                    </a>
+                  </p>
+                </>
+              );
+              setDialogOpen(true);
             } else {
+              setDialogTitle('Error');
+              setDialogDescription(
+                'There was a problem creating your playlist.'
+              );
+              setDialogContent(
+                <p>
+                  Please try again later or check your Spotify account settings.
+                </p>
+              );
+              setDialogOpen(true);
               console.error('Playlist could not be created this time.');
             }
           }
         } else {
+          setDialogTitle('Error');
+          setDialogDescription('There was a problem creating your playlist.');
+          setDialogContent(
+            <p>
+              Please try again later or check your Spotify account settings.
+            </p>
+          );
+          setDialogOpen(true);
           console.error('No playlist available to be created.');
         }
       } else {
@@ -596,6 +653,15 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {/* User Dialog Modal */}
+      <UserDialog
+        open={dialogOpen}
+        setOpen={setDialogOpen}
+        title={dialogTitle}
+        description={dialogDescription}
+      >
+        {dialogContent}
+      </UserDialog>
     </div>
   );
 }
