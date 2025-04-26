@@ -6,15 +6,7 @@ import FolderItem from '../../components/listContainer/FolderItem';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserDialog } from '@/components/modal/userDialog';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from '@/components/ui/dialog';
-
+import { toast } from 'sonner';
 import {
   DiscogsAuthorizeResponse,
   DiscogsCheckAuthResponse,
@@ -89,6 +81,10 @@ export default function Home() {
           popup?.close();
           // Import user library once authorization is complete
           discogsImportUserFolders();
+          toast.success('Discogs connected', {
+            description: `You have successfully connected to your Discogs account!`,
+          });
+
           cleanup();
         }
       };
@@ -251,6 +247,9 @@ export default function Home() {
     setDiscogsFolders([]);
     setDiscogsFolderItemsCache({});
     setActiveFolderId(null);
+    toast.success('Discogs disconnected', {
+      description: `You have been successfully disconnected from Discogs!`,
+    });
     // TODO: create backend route /DiscogsLogout to handle backend logout actions
   };
 
@@ -277,6 +276,10 @@ export default function Home() {
         if (event.data === 'authorizationComplete') {
           popup?.close();
           checkSpotifyAuthStatus();
+
+          toast.success('Spotify connected', {
+            description: `You have successfully connected to your Spotify account!`,
+          });
           cleanup();
         }
       };
@@ -350,6 +353,9 @@ export default function Home() {
       profileUrl: '',
     });
     setSpotifyPlaylist(null);
+    toast.success('Spotify disconnected', {
+      description: `You have been successfully disconnected from Spotify!`,
+    });
     // TODO: create backend route /DiscogsLogout to handle backend logout actions
   };
 

@@ -2,6 +2,7 @@ import './App.css';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 import Home from './pages/Home/Home';
+import { Toaster } from '@/components/ui/sonner';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <main className='flex-1 px-4 py-8'>
         <Home />
       </main>
+      <Toaster richColors />
       <Footer />
     </div>
   );
