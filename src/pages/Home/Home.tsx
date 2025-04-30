@@ -44,7 +44,6 @@ export default function Home() {
     SpotifyAlbumItem[] | null
   >(null);
   const [playlistName, setPlaylistName] = useState<string>('');
-  const [playlistUrl, setPlaylistUrl] = useState<string>('');
   const [notFoundItems, setNotFoundItems] = useState<any[]>([]);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [dialogTitle, setDialogTitle] = useState<string>('');
@@ -564,7 +563,6 @@ export default function Home() {
 
             if (response.data.status == 'success' && response.data.url) {
               const url = response.data.url;
-              setPlaylistUrl(url);
               // display user dialog
               setDialogTitle('Playlist Created!');
               setDialogDescription(
