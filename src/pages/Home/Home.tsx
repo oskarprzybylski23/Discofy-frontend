@@ -756,7 +756,7 @@ export default function Home() {
             <Input
               type='text'
               placeholder='Enter your playlist name'
-              value={playlistName ? playlistName : undefined}
+              value={playlistName || ''}
               disabled={!spotifyPlaylist}
               onChange={(e) => setPlaylistName(e.target.value)}
             />
