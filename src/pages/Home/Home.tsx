@@ -67,7 +67,7 @@ export default function Home() {
     // - import user library if authorization is successfull
     try {
       const response = await apiClient.post<DiscogsAuthorizeResponse>(
-        `discogs/authorize_discogs`,
+        `discogs/get_auth_url`,
         null,
         {
           withCredentials: true,
@@ -269,7 +269,7 @@ export default function Home() {
     try {
       setDiscogsIsLoading(true);
       const response = await apiClient.get<DiscogsCollectionResponse>(
-        `discogs/get_collection`,
+        `discogs/get_folder_contents`,
         {
           params: { folder: folderId },
         }
@@ -317,9 +317,8 @@ export default function Home() {
     // - handle auth popup to prompt user to authorize
     // - once authorized, check Spotify auth status to get user info to be displayed
     try {
-      const response = await apiClient.get<SpotifyAuthorizeResponse>(
-        `spotify/spotify_auth_url`
-      );
+      const response =
+        await apiClient.get<SpotifyAuthorizeResponse>(`spotify/get_auth_url`);
       const { authorize_url } = response.data;
       if (!authorize_url) {
         console.error('Missing authorize_url backend response:', response.data);
@@ -386,7 +385,7 @@ export default function Home() {
   const checkSpotifyAuthStatus = async () => {
     try {
       const response = await apiClient.get<SpotifyAuthCheckResponse>(
-        `spotify/check_spotify_authorization`,
+        `spotify/check_authorization`,
         {
           withCredentials: true,
         }
@@ -456,7 +455,7 @@ export default function Home() {
       setSpotifyIsLoading(true);
 
       const response = await apiClient.post<SpotifyTransferResponse>(
-        `spotify/transfer_to_spotify`,
+        `spotify/transfer_collection`,
         {
           collection: collection_items,
         },
