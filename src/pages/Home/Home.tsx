@@ -67,7 +67,7 @@ export default function Home() {
     // - import user library if authorization is successfull
     try {
       const response = await apiClient.post<DiscogsAuthorizeResponse>(
-        `/authorize_discogs`,
+        `discogs/authorize_discogs`,
         null,
         {
           withCredentials: true,
@@ -139,7 +139,7 @@ export default function Home() {
   const checkDiscogsAuthStatus = async () => {
     try {
       const response = await apiClient.get<DiscogsCheckAuthResponse>(
-        `/check_authorization`,
+        `discogs/check_authorization`,
         { withCredentials: true }
       );
 
@@ -187,7 +187,7 @@ export default function Home() {
     setDiscogsIsLoading(true);
     try {
       const response = await apiClient.get<DiscogsLibraryResponse>(
-        `/get_library`,
+        `discogs/get_library`,
         { withCredentials: true }
       );
 
@@ -269,7 +269,7 @@ export default function Home() {
     try {
       setDiscogsIsLoading(true);
       const response = await apiClient.get<DiscogsCollectionResponse>(
-        `/get_collection`,
+        `discogs/get_collection`,
         {
           params: { folder: folderId },
         }
@@ -317,8 +317,9 @@ export default function Home() {
     // - handle auth popup to prompt user to authorize
     // - once authorized, check Spotify auth status to get user info to be displayed
     try {
-      const response =
-        await apiClient.get<SpotifyAuthorizeResponse>(`/spotify_auth_url`);
+      const response = await apiClient.get<SpotifyAuthorizeResponse>(
+        `spotify/spotify_auth_url`
+      );
       const { authorize_url } = response.data;
       if (!authorize_url) {
         console.error('Missing authorize_url backend response:', response.data);
@@ -385,7 +386,7 @@ export default function Home() {
   const checkSpotifyAuthStatus = async () => {
     try {
       const response = await apiClient.get<SpotifyAuthCheckResponse>(
-        `/check_spotify_authorization`,
+        `spotify/check_spotify_authorization`,
         {
           withCredentials: true,
         }
@@ -455,7 +456,7 @@ export default function Home() {
       setSpotifyIsLoading(true);
 
       const response = await apiClient.post<SpotifyTransferResponse>(
-        `/transfer_to_spotify`,
+        `spotify/transfer_to_spotify`,
         {
           collection: collection_items,
         },
@@ -523,7 +524,7 @@ export default function Home() {
           setSpotifyIsLoading(true);
           const playlist_items = spotifyPlaylist;
           const response = await apiClient.post<CreatePlaylistResponse>(
-            `/create_playlist`,
+            `spotify/create_playlist`,
             {
               playlist: playlist_items,
               playlist_name: playlistName,
