@@ -411,9 +411,7 @@ export default function Home() {
           profileUrl: user_info.url,
         });
       } else {
-        toast.error('Spotify Authorization Expired', {
-          description: `Please reconnect your Spotify account.`,
-        });
+        return;
       }
     } catch (error: any) {
       console.error('Error checking Spotify authorization:', error);
