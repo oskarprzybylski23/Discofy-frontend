@@ -294,21 +294,32 @@ export default function Home() {
     }
   };
 
-  const handleDiscogsLogout = () => {
-    localStorage.removeItem('discogs_state');
-    // Clear user and cache + reset display
-    setDiscogsUser({
-      loggedIn: false,
-      name: '',
-      profileUrl: '',
-    });
-    setDiscogsFolders([]);
-    setDiscogsFolderItemsCache({});
-    setActiveFolderId(null);
-    toast.success('Discogs disconnected', {
-      description: `You have been successfully disconnected from Discogs!`,
-    });
-    // TODO: create backend route /DiscogsLogout to handle backend logout actions
+  const handleDiscogsLogout = async () => {
+    try {
+      const response = await apiClient.post(`discogs/logout`, {
+        withCredentials: true,
+      });
+
+      if (response.data.status == 'success')
+        // Clear user and cache + reset display
+        setDiscogsUser({
+          loggedIn: false,
+          name: '',
+          profileUrl: '',
+        });
+      setDiscogsFolders([]);
+      setDiscogsFolderItemsCache({});
+      setActiveFolderId(null);
+      toast.success('Discogs disconnected', {
+        description: `You have been successfully disconnected from Discogs!`,
+      });
+    } catch (error: any) {
+      // handle better
+      console.error('Error disconnecting from Discogs:', error);
+      toast.error('Error', {
+        description: `We encountered an error while disconnecting you from Discogs.`,
+      });
+    }
   };
 
   const handleSpotifyLogin = async () => {
@@ -412,19 +423,31 @@ export default function Home() {
     }
   };
 
-  const handleSpotifyLogout = () => {
-    localStorage.removeItem('spotify_state');
-    // Clear user and cache + reset display
-    setSpotifyUser({
-      loggedIn: false,
-      name: '',
-      profileUrl: '',
-    });
-    setSpotifyPlaylist(null);
-    toast.success('Spotify disconnected', {
-      description: `You have been successfully disconnected from Spotify!`,
-    });
-    // TODO: create backend route /DiscogsLogout to handle backend logout actions
+  const handleSpotifyLogout = async () => {
+    try {
+      const response = await apiClient.post(`spotify/logout`, {
+        withCredentials: true,
+      });
+
+      if (response.data.status == 'success')
+        // Clear user and cache + reset display
+        setSpotifyUser({
+          loggedIn: false,
+          name: '',
+          profileUrl: '',
+        });
+      setSpotifyPlaylist(null);
+      setPlaylistName('');
+      toast.success('Spotify disconnected', {
+        description: `You have been successfully disconnected from Spotify!`,
+      });
+    } catch (error: any) {
+      // handle better
+      console.error('Error disconnecting from Discogs:', error);
+      toast.error('Error', {
+        description: `We encountered an error while disconnecting you from Discogs.`,
+      });
+    }
   };
 
   const handleMoveCollection = async () => {
