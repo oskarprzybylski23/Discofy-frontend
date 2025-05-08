@@ -462,7 +462,7 @@ export default function Home() {
         return;
       }
 
-      if (!activeFolderId) {
+      if (activeFolderId === null) {
         toast.error('No Folder Selected', {
           description: 'Please select a folder to transfer before proceeding.',
         });
@@ -740,7 +740,9 @@ export default function Home() {
             onClick={handleMoveCollection}
             variant='secondary'
             disabled={
-              !discogsUser.loggedIn || !spotifyUser.loggedIn || !activeFolderId
+              !discogsUser.loggedIn ||
+              !spotifyUser.loggedIn ||
+              activeFolderId === null
             }
           >
             Export
