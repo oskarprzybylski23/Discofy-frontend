@@ -7,6 +7,7 @@ type AlbumItemProps = {
   coverUrl: string;
   highlight?: boolean;
   className?: string;
+  url: string;
 };
 
 export default function AlbumItem({
@@ -16,6 +17,7 @@ export default function AlbumItem({
   coverUrl,
   highlight = false,
   className,
+  url,
 }: AlbumItemProps) {
   return (
     <li>
@@ -31,7 +33,11 @@ export default function AlbumItem({
         </span>
         <img className='h-10' src={coverUrl} alt='Album Cover' />
         <div className='flex flex-col w-[70%]'>
-          <span className='overflow-y-hidden font-medium'>{title}</span>
+          <a href={url} target='blank'>
+            <span className='overflow-y-hidden font-medium hover:underline'>
+              {title}
+            </span>
+          </a>
           <span className='text-font-mid text-sm'>{artist}</span>
         </div>
       </div>

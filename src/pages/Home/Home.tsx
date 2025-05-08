@@ -675,6 +675,7 @@ export default function Home() {
                     title={album.title}
                     artist={album.artist}
                     coverUrl={album.cover}
+                    url={album.url}
                     highlight={notFoundItems.some(
                       (item) => item.discogs_id === album.discogs_id
                     )}
@@ -743,6 +744,7 @@ export default function Home() {
                 title={album.title}
                 artist={album.artist}
                 coverUrl={album.image}
+                url={album.url}
               />
             ))}
           </ListContainer>
