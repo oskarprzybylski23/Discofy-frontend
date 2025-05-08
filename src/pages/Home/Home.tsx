@@ -22,7 +22,8 @@ import {
   CreatePlaylistResponse,
   LogoutResponse,
 } from '../../types/discogs';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { SiDiscogs, SiSpotify } from 'react-icons/si';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -663,6 +664,7 @@ export default function Home() {
           }
           variant={discogsUser.loggedIn ? 'destructive' : 'secondary'}
         >
+          <SiDiscogs />
           {discogsUser.loggedIn ? 'Disconnect Discogs' : 'Connect to Discogs'}
         </Button>
         <Button
@@ -671,6 +673,7 @@ export default function Home() {
           }
           variant={spotifyUser.loggedIn ? 'destructive' : 'secondary'}
         >
+          <SiSpotify className='text-spotify-green' />
           {spotifyUser.loggedIn ? 'Disconnect Spotify' : 'Connect to Spotify'}
         </Button>
       </div>
@@ -726,7 +729,7 @@ export default function Home() {
               disabled={activeFolderId == null}
               size='icon'
             >
-              <ChevronLeft size={14} />
+              <ChevronLeft />
             </Button>
           </div>
         </div>
@@ -740,22 +743,8 @@ export default function Home() {
               !discogsUser.loggedIn || !spotifyUser.loggedIn || !activeFolderId
             }
           >
-            Move Collection
-            <svg
-              id='svg-arrow'
-              height='16px'
-              viewBox='0 0 16 16'
-              fill='currentColor'
-              xmlns='http://www.w3.org/2000/svg'
-              className='inline ml-2 align-middle'
-            >
-              <path
-                d='M4.97.47a.75.75 0 0 0 0 1.06L11.44 8l-6.47 6.47a.75.75 0 1 0 1.06 1.06L13.56 8 6.03.47a.75.75 0 0 0-1.06 0z'
-                strokeWidth='1'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-            </svg>
+            Export
+            <ChevronRight />
           </Button>
         </div>
 
