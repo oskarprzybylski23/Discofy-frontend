@@ -33,7 +33,9 @@ export default function ListContainer({
         )}
       </div>
 
-      <ul className='bg-light-background h-[400px] max-h-[400px] p-0.5 rounded-md overflow-y-scroll'>
+      <ul
+        className={`bg-light-background h-[400px] max-h-[400px] p-0.5 rounded-md overflow-y-scroll ${isLoading ? 'opacity-60 pointer-events-none blur-xs' : ''}`}
+      >
         {children}
       </ul>
     </div>
