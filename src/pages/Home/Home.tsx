@@ -673,9 +673,6 @@ export default function Home() {
         >
           {spotifyUser.loggedIn ? 'Disconnect Spotify' : 'Connect to Spotify'}
         </Button>
-        <Button disabled variant='secondary'>
-          Save Report
-        </Button>
       </div>
 
       {/* Three column layout */}
