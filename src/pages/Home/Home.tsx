@@ -724,6 +724,7 @@ export default function Home() {
               onClick={() => setActiveFolderId(null)}
               variant='secondary'
               disabled={activeFolderId == null}
+              size='icon'
             >
               <ChevronLeft size={14} />
             </Button>
