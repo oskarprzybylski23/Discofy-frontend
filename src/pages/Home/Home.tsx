@@ -194,8 +194,6 @@ export default function Home() {
         { withCredentials: true }
       );
 
-      console.log(response);
-
       const { user_info, library } = response.data;
       // TODO: move user info retrieval to checkDiscogsAuth()
       if (user_info) {
@@ -430,7 +428,6 @@ export default function Home() {
       const response = await apiClient.post<LogoutResponse>(`spotify/logout`, {
         withCredentials: true,
       });
-      console.log(response);
       if (response.data.status == 'success')
         // Clear user and cache + reset display
         setSpotifyUser({
