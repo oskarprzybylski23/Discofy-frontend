@@ -31,8 +31,14 @@ export function UserDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+          <DialogTitle className='text-spotify-green text-xl'>
+            {title}
+          </DialogTitle>
+          {description && (
+            <DialogDescription className='text-font-mid text-base'>
+              {description}
+            </DialogDescription>
+          )}
         </DialogHeader>
 
         {children && (

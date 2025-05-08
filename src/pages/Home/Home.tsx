@@ -493,12 +493,65 @@ export default function Home() {
       );
 
       const exportData = response.data;
-      handleExportData(exportData);
+      const { playlistData, notFoundItems } = handleExportData(exportData);
 
       // TODO: handle toast for various cases when all items were matched, or some could not be matched, add stats.
-      toast.info('Transfer Complete', {
-        description: 'Your Discogs collection has been matched with Spotify!',
-      });
+      // display user dialog
+
+      if (playlistData?.length > 0) {
+        setDialogTitle('Transfer Successful!');
+        setDialogDescription(
+          'Your Discogs collection was matched with Spotify albums.'
+        );
+      } else {
+        setDialogTitle('Transfer Failed!');
+        setDialogDescription('We couldn not find any matching Spotify albums');
+      }
+
+      setDialogContent(
+        <>
+          {playlistData?.length > 0 ? (
+            <p>
+              <strong>{playlistData?.length}</strong>{' '}
+              {playlistData.length > 1 ? 'albums were' : 'album was'} added to
+              the playlist creator.
+            </p>
+          ) : (
+            <p>
+              We couldn't find matching albums for your collection this time.
+            </p>
+          )}
+          {notFoundItems?.length > 0 ? (
+            <p>
+              <strong>{notFoundItems.length}</strong> album
+              {notFoundItems.length > 1 ? 's' : ''} could not be matched. This
+              usually happens if:
+              <ul className='list-disc list-inside ml-4'>
+                <li>The album isn't available in Spotify’s catalog, or</li>
+                <li>The names differ too much between Discogs and Spotify.</li>
+              </ul>
+              These unmatched albums are highlighted in{' '}
+              <span className='text-failed'>red</span> in your Discogs
+              Collection.
+            </p>
+          ) : (
+            <p>
+              All albums in your collection were successfully matched with items
+              in the Spotify catalog.
+            </p>
+          )}
+          <p className='mt-2'>
+            Please review the matched albums to ensure they’re correct. While we
+            aim to ensure high accuracy, metadata inconsistencies can lead to
+            mismatches.
+          </p>
+          <p className='mt-2'>
+            You can make adjustments to the playlist before finalizing it. When
+            you're ready, click <strong>'Create Playlist'</strong>.
+          </p>
+        </>
+      );
+      setDialogOpen(true);
     } catch (error: any) {
       console.error('Error transferring Discogs items to Spotify:', error);
       toast.error('Transfer Failed', {
@@ -545,6 +598,8 @@ export default function Home() {
     }
     setNotFoundItems(notFoundItems);
     setSpotifyPlaylist(playlistData);
+
+    return { playlistData, notFoundItems };
   };
 
   const handleCreatePlaylist = async () => {
@@ -587,10 +642,12 @@ export default function Home() {
             setDialogContent(
               <>
                 <p>
-                  {enabledAlbums?.length} albums were added to your playlist.
+                  <strong>{enabledAlbums?.length}</strong>{' '}
+                  {enabledAlbums?.length === 1 ? 'album was' : 'albums were'}{' '}
+                  added to your playlist.
                 </p>
                 <p>
-                  Check it out here:{' '}
+                  You can view it on Spotify:{' '}
                   <a
                     href={url}
                     target='_blank'
@@ -600,16 +657,49 @@ export default function Home() {
                     {playlistName}
                   </a>
                 </p>
+                <p>
+                  Thank you for using <strong>Discofy</strong>!
+                </p>
+                <p>
+                  This is an open-source project. Want to contribute or report
+                  an issue?{' '}
+                </p>
+                <strong>
+                  <a
+                    href='https://github.com/oskarprzybylski23/Discofy-frontend'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='underline'
+                  >
+                    Visit the GitHub repo
+                  </a>
+                </strong>
               </>
             );
             setDialogOpen(true);
           } else {
-            setDialogTitle('Error');
+            setDialogTitle('Playlist Creation Error');
             setDialogDescription('There was a problem creating your playlist.');
             setDialogContent(
-              <p>
-                Please try again later or check your Spotify account settings.
-              </p>
+              <>
+                <p>
+                  Please try again later or check your Spotify account
+                  permissions and connection status.
+                </p>
+                <p>
+                  If you think this is a bug, you can report it on our GitHub.
+                  This way we can fix it quicker.{' '}
+                  <a
+                    href='https://github.com/oskarprzybylski23/Discofy-frontend/issues/new'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    className='underline'
+                  >
+                    Report an Issue
+                  </a>
+                  .
+                </p>
+              </>
             );
             setDialogOpen(true);
           }
@@ -617,9 +707,25 @@ export default function Home() {
           setDialogTitle('Error');
           setDialogDescription('There was a problem creating your playlist.');
           setDialogContent(
-            <p>
-              Please try again later or check your Spotify account settings.
-            </p>
+            <>
+              <p>
+                Please try again later or check your Spotify account permissions
+                and connection status.
+              </p>
+              <p>
+                If you think this is a bug, you can report it on our GitHub.
+                This way we can fix it quicker.{' '}
+                <a
+                  href='https://github.com/oskarprzybylski23/Discofy-frontend/issues/new'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='underline'
+                >
+                  Report an Issue
+                </a>
+                .
+              </p>
+            </>
           );
           setDialogOpen(true);
           console.error('No playlist available to be created.');
