@@ -278,6 +278,7 @@ export default function Home() {
 
       if (response.data && Array.isArray(response.data)) {
         // Cache the folder items
+        // TODO: set item data more explicitly to avoid API response mismatch introducing bugs
         setDiscogsFolderItemsCache((prev) => ({
           ...prev,
           [folderId]: response.data,
@@ -523,6 +524,7 @@ export default function Home() {
           uri: item.uri,
           discogs_id: item.discogs_id,
           found: true,
+          disabled: false,
         });
       } else {
         // Collect items that weren't found
@@ -535,6 +537,7 @@ export default function Home() {
           uri: item.uri,
           discogs_id: item.discogs_id,
           found: true,
+          disabled: false,
         });
       }
     }
@@ -547,11 +550,21 @@ export default function Home() {
       if (spotifyUser.loggedIn) {
         if (spotifyPlaylist) {
           setSpotifyIsLoading(true);
-          const playlist_items = spotifyPlaylist;
+          const enabledAlbums =
+            spotifyPlaylist?.filter((album) => !album.disabled) || [];
+
+          // Only proceed if there are enabled albums to add to the playlist
+          if (enabledAlbums.length === 0) {
+            toast.error('No albums selected', {
+              description:
+                'Please select at least one album to create a playlist',
+            });
+            return;
+          }
           const response = await apiClient.post<CreatePlaylistResponse>(
             `spotify/create_playlist`,
             {
-              playlist: playlist_items,
+              playlist: enabledAlbums,
               playlist_name: playlistName,
             },
             {
@@ -572,7 +585,7 @@ export default function Home() {
             setDialogContent(
               <>
                 <p>
-                  {spotifyPlaylist?.length} albums were added to your playlist.
+                  {enabledAlbums?.length} albums were added to your playlist.
                 </p>
                 <p>
                   Check it out here:{' '}
@@ -621,6 +634,21 @@ export default function Home() {
       });
     } finally {
       setSpotifyIsLoading(false);
+    }
+  };
+
+  const handleTogglePlaylistItem = (indexToToggle: number) => {
+    if (spotifyPlaylist) {
+      // Create a new array with the toggled item
+      const updatedPlaylist = spotifyPlaylist.map((album, index) => {
+        if (index === indexToToggle) {
+          // Toggle the disabled status
+          return { ...album, disabled: !album.disabled };
+        }
+        return album;
+      });
+
+      setSpotifyPlaylist(updatedPlaylist);
     }
   };
 
@@ -679,6 +707,7 @@ export default function Home() {
                     highlight={notFoundItems.some(
                       (item) => item.discogs_id === album.discogs_id
                     )}
+                    toggleable={false} // do not allow for toggling discogs items for now
                   />
                 ))}
               </>
@@ -745,6 +774,9 @@ export default function Home() {
                 artist={album.artist}
                 coverUrl={album.image}
                 url={album.url}
+                toggleable={true}
+                disabled={album.disabled}
+                onToggle={() => handleTogglePlaylistItem(i)}
               />
             ))}
           </ListContainer>

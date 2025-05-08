@@ -1,13 +1,17 @@
 import { cn } from '../../lib/utils';
+import { Check, X } from 'lucide-react';
 
 type AlbumItemProps = {
   index: number;
   title: string;
   artist: string;
   coverUrl: string;
+  url: string;
   highlight?: boolean;
   className?: string;
-  url: string;
+  toggleable?: boolean;
+  disabled?: boolean;
+  onToggle?: () => void;
 };
 
 export default function AlbumItem({
@@ -15,9 +19,12 @@ export default function AlbumItem({
   title,
   artist,
   coverUrl,
+  url,
   highlight = false,
   className,
-  url,
+  toggleable = false,
+  disabled = false,
+  onToggle,
 }: AlbumItemProps) {
   return (
     <li>
@@ -25,6 +32,7 @@ export default function AlbumItem({
         className={cn(
           'bg-mid-background text-base flex items-center gap-2 mt-0.5 p-2 min-h-10 rounded-md hover:brightness-135',
           highlight && 'bg-failed',
+          disabled && 'opacity-50',
           className
         )}
       >
@@ -40,6 +48,21 @@ export default function AlbumItem({
           </a>
           <span className='text-font-mid text-sm'>{artist}</span>
         </div>
+        {toggleable && onToggle && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onToggle();
+            }}
+            className={cn(
+              'transition-colors',
+              disabled ? 'hover:text-spotify-green' : 'hover:text-failed'
+            )}
+            aria-label={disabled ? 'Enable album' : 'Disable album'}
+          >
+            {disabled ? <Check size={18} /> : <X size={18} />}
+          </button>
+        )}
       </div>
     </li>
   );

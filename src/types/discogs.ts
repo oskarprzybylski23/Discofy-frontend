@@ -43,6 +43,7 @@ export type DiscogsAlbumItem = {
   title: string;
   url: string;
   year: number;
+  disabled?: boolean;
 };
 
 export type DiscogsCollectionResponse = DiscogsAlbumItem[];
@@ -56,6 +57,7 @@ export type SpotifyAlbumItem = {
   uri: string;
   discogs_id: number;
   found: boolean;
+  disabled?: boolean;
 };
 
 export interface SpotifyAuthorizeResponse {
