@@ -22,6 +22,7 @@ import {
   CreatePlaylistResponse,
   LogoutResponse,
 } from '../../types/discogs';
+import { ChevronLeft } from 'lucide-react';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -689,13 +690,6 @@ export default function Home() {
           >
             {activeFolderId !== null ? (
               <>
-                <Button
-                  onClick={() => setActiveFolderId(null)}
-                  variant='secondary'
-                  className='mb-2'
-                >
-                  ← Back to folders
-                </Button>
                 {discogsFolderItemsCache[activeFolderId]?.map((album, i) => (
                   <AlbumItem
                     key={`disc-${album.discogs_id}-${i}`}
@@ -728,6 +722,15 @@ export default function Home() {
               ))
             )}
           </ListContainer>
+          <div className='mt-4'>
+            <Button
+              onClick={() => setActiveFolderId(null)}
+              variant='secondary'
+              disabled={activeFolderId == null}
+            >
+              <ChevronLeft size={14} />
+            </Button>
+          </div>
         </div>
 
         {/* Middle column with move button */}
