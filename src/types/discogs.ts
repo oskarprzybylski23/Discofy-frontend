@@ -47,6 +47,17 @@ export type DiscogsAlbumItem = {
 
 export type DiscogsCollectionResponse = DiscogsAlbumItem[];
 
+export type SpotifyAlbumItem = {
+  artist: string;
+  title: string;
+  image: string;
+  url: string;
+  id: string;
+  uri: string;
+  discogs_id: number;
+  found: boolean;
+};
+
 export interface SpotifyAuthorizeResponse {
   authorize_url: string;
   state: string;
@@ -57,17 +68,6 @@ export interface SpotifyAuthCheckResponse {
   url: string;
   username: string;
 }
-
-export type SpotifyAlbumItem = {
-  artist: string;
-  title: string;
-  image: string;
-  url: string;
-  id: string;
-  uri: string;
-  discogs_id: string;
-  found: boolean;
-};
 
 export type SpotifyTransferResponse = SpotifyAlbumItem[];
 

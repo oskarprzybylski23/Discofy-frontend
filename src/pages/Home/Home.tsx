@@ -54,7 +54,7 @@ export default function Home() {
     SpotifyAlbumItem[] | null
   >(null);
   const [playlistName, setPlaylistName] = useState<string>('');
-  const [notFoundItems, setNotFoundItems] = useState<any[]>([]);
+  const [notFoundItems, setNotFoundItems] = useState<SpotifyAlbumItem[]>([]);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [dialogTitle, setDialogTitle] = useState<string>('');
   const [dialogDescription, setDialogDescription] =
@@ -508,7 +508,7 @@ export default function Home() {
 
   const handleExportData = (exportData: any) => {
     const playlistData: SpotifyAlbumItem[] = [];
-    const notFoundItems = [];
+    const notFoundItems: SpotifyAlbumItem[] = [];
 
     for (let i = 0; i < exportData.length; i++) {
       const item = exportData[i];
@@ -527,14 +527,18 @@ export default function Home() {
       } else {
         // Collect items that weren't found
         notFoundItems.push({
-          ...item,
-          notFound: true,
+          artist: item.artist,
+          title: item.title,
+          image: item.image,
+          url: item.url,
+          id: item.id,
+          uri: item.uri,
+          discogs_id: item.discogs_id,
+          found: true,
         });
-        // TODO: handle flags for albums not found
       }
     }
     setNotFoundItems(notFoundItems);
-    console.log(notFoundItems);
     setSpotifyPlaylist(playlistData);
   };
 
