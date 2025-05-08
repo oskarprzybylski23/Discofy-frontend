@@ -661,7 +661,7 @@ export default function Home() {
           onClick={
             discogsUser.loggedIn ? handleDiscogsLogout : handleDiscogsLogin
           }
-          variant='secondary'
+          variant={discogsUser.loggedIn ? 'destructive' : 'secondary'}
         >
           {discogsUser.loggedIn ? 'Disconnect Discogs' : 'Connect to Discogs'}
         </Button>
@@ -669,7 +669,7 @@ export default function Home() {
           onClick={
             spotifyUser.loggedIn ? handleSpotifyLogout : handleSpotifyLogin
           }
-          variant='secondary'
+          variant={spotifyUser.loggedIn ? 'destructive' : 'secondary'}
         >
           {spotifyUser.loggedIn ? 'Disconnect Spotify' : 'Connect to Spotify'}
         </Button>
