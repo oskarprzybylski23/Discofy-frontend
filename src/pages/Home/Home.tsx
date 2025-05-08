@@ -20,6 +20,7 @@ import {
   SpotifyAuthCheckResponse,
   SpotifyTransferResponse,
   CreatePlaylistResponse,
+  LogoutResponse,
 } from '../../types/discogs';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
@@ -296,7 +297,7 @@ export default function Home() {
 
   const handleDiscogsLogout = async () => {
     try {
-      const response = await apiClient.post(`discogs/logout`, {
+      const response = await apiClient.post<LogoutResponse>(`discogs/logout`, {
         withCredentials: true,
       });
 
@@ -423,10 +424,10 @@ export default function Home() {
 
   const handleSpotifyLogout = async () => {
     try {
-      const response = await apiClient.post(`spotify/logout`, {
+      const response = await apiClient.post<LogoutResponse>(`spotify/logout`, {
         withCredentials: true,
       });
-
+      console.log(response);
       if (response.data.status == 'success')
         // Clear user and cache + reset display
         setSpotifyUser({

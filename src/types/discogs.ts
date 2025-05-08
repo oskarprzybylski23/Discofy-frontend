@@ -76,3 +76,8 @@ export type CreatePlaylistResponse = {
   message: string;
   url: string | null;
 };
+
+export type LogoutResponse = {
+  status: 'success' | 'error';
+  message: string;
+};
