@@ -6,7 +6,7 @@ type UserInfoProps = {
 export default function UserInfo({ name, url }: UserInfoProps) {
   return (
     <p className='text-left text-sm pt-4 pb-4 ml-1.5'>
-      Logged in:{' '}
+      Connected to user{' '}
       <a
         className='text-spotify-green font-bold hover:brightness-135'
         href={url}
