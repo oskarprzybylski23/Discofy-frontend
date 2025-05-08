@@ -30,7 +30,7 @@ export default function AlbumItem({
     <li>
       <div
         className={cn(
-          'bg-mid-background text-base flex items-center gap-2 mt-0.5 p-2 min-h-10 rounded-md hover:brightness-135',
+          'bg-mid-background text-base flex items-center gap-2 mt-0.5 p-2 min-h-10 rounded-md hover:bg-highlight-dark',
           highlight && 'bg-failed',
           disabled && 'opacity-50',
           className
@@ -41,12 +41,12 @@ export default function AlbumItem({
         </span>
         <img className='h-10' src={coverUrl} alt='Album Cover' />
         <div className='flex flex-col w-[70%]'>
-          <a href={url} target='blank'>
-            <span className='overflow-y-hidden font-medium hover:underline'>
+          <span className='overflow-y-hidden font-medium hover:underline w-fit'>
+            <a href={url} target='blank'>
               {title}
-            </span>
-          </a>
-          <span className='text-font-mid text-sm'>{artist}</span>
+            </a>
+          </span>
+          <span className='text-font-mid text-sm w-fit'>{artist}</span>
         </div>
         {toggleable && onToggle && (
           <button
