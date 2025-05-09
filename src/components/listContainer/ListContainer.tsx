@@ -38,7 +38,7 @@ export default function ListContainer({
       </div>
 
       <ul
-        className={`bg-light-background flex-1 p-0.5 rounded-md overflow-y-auto ${isLoading ? 'opacity-60 pointer-events-none blur-xs' : ''}`}
+        className={`bg-light-background opacity-80 flex-1 p-0.5 rounded-md overflow-y-auto ${isLoading ? 'opacity-60 pointer-events-none blur-xs' : ''}`}
       >
         {hasChildren ? (
           children
