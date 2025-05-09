@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 import ListContainer from '../../components/listContainer/ListContainer';
 import AlbumItem from '../../components/listContainer/AlbumItem';
 import FolderItem from '../../components/listContainer/FolderItem';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserDialog } from '@/components/modal/userDialog';
+import { ButtonWithTooltip } from '@/components/button/buttonWithTooltip';
 import { toast } from 'sonner';
 import {
   DiscogsAuthorizeResponse,
@@ -761,7 +761,7 @@ export default function Home() {
     <div className='flex flex-col items-center space-y-6 w-full'>
       {/* Top action buttons */}
       <div className='flex flex-wrap gap-4 justify-center'>
-        <Button
+        <ButtonWithTooltip
           onClick={
             discogsUser.loggedIn ? handleDiscogsLogout : handleDiscogsLogin
           }
@@ -769,8 +769,8 @@ export default function Home() {
         >
           <SiDiscogs />
           {discogsUser.loggedIn ? 'Disconnect Discogs' : 'Connect to Discogs'}
-        </Button>
-        <Button
+        </ButtonWithTooltip>
+        <ButtonWithTooltip
           onClick={
             spotifyUser.loggedIn ? handleSpotifyLogout : handleSpotifyLogin
           }
@@ -778,7 +778,7 @@ export default function Home() {
         >
           <SiSpotify className='text-spotify-green' />
           {spotifyUser.loggedIn ? 'Disconnect Spotify' : 'Connect to Spotify'}
-        </Button>
+        </ButtonWithTooltip>
       </div>
 
       {/* Three column layout */}
@@ -826,20 +826,24 @@ export default function Home() {
             )}
           </ListContainer>
           <div className='mt-4'>
-            <Button
+            <ButtonWithTooltip
               onClick={() => setActiveFolderId(null)}
               variant='secondary'
               disabled={activeFolderId == null}
               size='icon'
+              showTooltip={true}
+              tooltip='Go back'
+              tooltipOffset={10}
+              tooltipSide='bottom'
             >
               <ChevronLeft />
-            </Button>
+            </ButtonWithTooltip>
           </div>
         </div>
 
         {/* Middle column with move button */}
         <div className='flex justify-center items-center p-8'>
-          <Button
+          <ButtonWithTooltip
             onClick={handleMoveCollection}
             variant='secondary'
             disabled={
@@ -847,10 +851,14 @@ export default function Home() {
               !spotifyUser.loggedIn ||
               activeFolderId === null
             }
+            showTooltip={true}
+            tooltip='Find your records in Spotify'
+            tooltipOffset={10}
+            tooltipSide='bottom'
           >
             Export
             <ChevronRight />
-          </Button>
+          </ButtonWithTooltip>
         </div>
 
         {/* Spotify list */}
@@ -884,13 +892,13 @@ export default function Home() {
               disabled={!spotifyPlaylist}
               onChange={(e) => setPlaylistName(e.target.value)}
             />
-            <Button
+            <ButtonWithTooltip
               disabled={!spotifyPlaylist || playlistName.length == 0}
               onClick={handleCreatePlaylist}
               variant='default'
             >
               Create Playlist
-            </Button>
+            </ButtonWithTooltip>
           </div>
         </div>
       </div>

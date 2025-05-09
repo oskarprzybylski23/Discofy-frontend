@@ -1,5 +1,6 @@
 import { cn } from '../../lib/utils';
 import { Check, X } from 'lucide-react';
+import { ButtonWithTooltip } from '../button/buttonWithTooltip';
 
 type AlbumItemProps = {
   index: number;
@@ -49,19 +50,25 @@ export default function AlbumItem({
           <span className='text-font-mid text-sm w-fit'>{artist}</span>
         </div>
         {toggleable && onToggle && (
-          <button
+          <ButtonWithTooltip
+            variant={'ghost'}
+            size={'icon'}
             onClick={(e) => {
               e.preventDefault();
               onToggle();
             }}
+            showTooltip={true}
+            tooltip={disabled ? 'Include in playlist' : 'Exclude from playlist'}
+            tooltipOffset={10}
+            tooltipSide='bottom'
             className={cn(
-              'transition-colors',
+              'transition-colors hover:bg-opacity-0',
               disabled ? 'hover:text-spotify-green' : 'hover:text-failed'
             )}
             aria-label={disabled ? 'Enable album' : 'Disable album'}
           >
             {disabled ? <Check size={18} /> : <X size={18} />}
-          </button>
+          </ButtonWithTooltip>
         )}
       </div>
     </li>
