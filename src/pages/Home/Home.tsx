@@ -22,8 +22,9 @@ import {
   CreatePlaylistResponse,
   LogoutResponse,
 } from '../../types/discogs';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, OctagonAlert } from 'lucide-react';
 import { SiDiscogs, SiSpotify } from 'react-icons/si';
+import { AiOutlineExclamationCircle } from 'react-icons/ai';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -492,13 +493,10 @@ export default function Home() {
       const exportData = response.data;
       const { playlistData, notFoundItems } = handleExportData(exportData);
 
-      // TODO: handle toast for various cases when all items were matched, or some could not be matched, add stats.
-      // display user dialog
-
       if (playlistData?.length > 0) {
         setDialogTitle('Transfer Successful!');
         setDialogDescription(
-          'Your Discogs collection was matched with Spotify albums.'
+          'We found matching Spotify albums for your record collection'
         );
       } else {
         setDialogTitle('Transfer Failed!');
@@ -514,25 +512,32 @@ export default function Home() {
               the playlist creator.
             </p>
           ) : (
-            <p>
+            <p className='text-failed flex gap-2'>
+              <OctagonAlert className='text-spotify-green' size={24} />
               We couldn't find matching albums for your collection this time.
             </p>
           )}
           {notFoundItems?.length > 0 ? (
-            <p>
-              <strong>{notFoundItems.length}</strong> album
-              {notFoundItems.length > 1 ? 's' : ''} could not be matched. This
-              usually happens if:
+            <>
+              <p className='text-failed flex gap-2'>
+                <OctagonAlert className='text-spotify-green' size={24} />
+                <strong>{notFoundItems.length}</strong> album
+                {notFoundItems.length > 1 ? 's' : ''} could not be exported.
+              </p>
+              <p>This usually happens if:</p>
               <ul className='list-disc list-inside ml-4'>
-                <li>The album isn't available in Spotify’s catalog, or</li>
-                <li>The names differ too much between Discogs and Spotify.</li>
+                <li>Album isn't available in Spotify’s catalog, or</li>
+                <li>Names differ too much between Discogs and Spotify.</li>
               </ul>
-              These unmatched albums are highlighted in{' '}
-              <span className='text-failed'>red</span> in your Discogs
-              Collection.
-            </p>
+              <p>
+                {' '}
+                These unmatched albums are highlighted in{' '}
+                <span className='text-failed'>red</span> in your Discogs
+                Collection.
+              </p>
+            </>
           ) : (
-            <p>
+            <p className='text-spotify-green'>
               All albums in your collection were successfully matched with items
               in the Spotify catalog.
             </p>
@@ -643,17 +648,15 @@ export default function Home() {
                   {enabledAlbums?.length === 1 ? 'album was' : 'albums were'}{' '}
                   added to your playlist.
                 </p>
-                <p>
-                  You can view it on Spotify:{' '}
-                  <a
-                    href={url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='underline'
-                  >
-                    {playlistName}
-                  </a>
-                </p>
+                <p>You can view it on Spotify:</p>
+                <a
+                  href={url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='hover:underline text-spotify-green'
+                >
+                  <strong>{playlistName}</strong>
+                </a>
                 <p>
                   Thank you for using <strong>Discofy</strong>!
                 </p>
@@ -666,7 +669,7 @@ export default function Home() {
                     href='https://github.com/oskarprzybylski23/Discofy-frontend'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='underline'
+                    className='hover:underline'
                   >
                     Visit the GitHub repo
                   </a>
@@ -690,9 +693,9 @@ export default function Home() {
                     href='https://github.com/oskarprzybylski23/Discofy-frontend/issues/new'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='underline'
+                    className='hover:underline'
                   >
-                    Report an Issue
+                    <strong>Report an Issue</strong>
                   </a>
                   .
                 </p>

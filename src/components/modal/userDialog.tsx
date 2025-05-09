@@ -29,7 +29,7 @@ export function UserDialog({
 }: UserDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className='sm:max-w-md'>
+      <DialogContent className='max-w-md md:max-w-xl'>
         <DialogHeader>
           <DialogTitle className='text-spotify-green text-xl'>
             {title}
