@@ -9,8 +9,8 @@ export default function Header() {
         />
         <h1 className='text-4xl text-spotify-green font-bold'>Discofy</h1>
       </div>
-      <h3 className='text-md text-font-bright'>
-        Export Discogs Collection to Spotify
+      <h3 className='text-lg text-font-bright font-bold tracking-wide'>
+        Export Your Discogs Collections to Spotify
       </h3>
     </header>
   );
