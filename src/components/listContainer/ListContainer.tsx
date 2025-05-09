@@ -22,23 +22,23 @@ export default function ListContainer({
   const hasChildren = React.Children.count(children) > 0;
 
   return (
-    <div className='text-font-bright relative'>
+    <div className='text-font-bright flex flex-col h-full relative'>
       {isLoading && (
         <Spinner text={spinnerText} className='spinner-container' />
       )}
 
-      <div className='text-2xl font-bold text-center'>
+      <div className='text-2xl font-bold text-center mb-4'>
         <h2>{title}</h2>
       </div>
 
-      <div className='h-[52px]'>
+      <div className='min-h-6 mb-4'>
         {loggedInUser.loggedIn && (
           <UserInfo name={loggedInUser.name} url={loggedInUser.profileUrl} />
         )}
       </div>
 
       <ul
-        className={`bg-light-background h-[400px] max-h-[400px] p-0.5 rounded-md overflow-y-scroll ${isLoading ? 'opacity-60 pointer-events-none blur-xs' : ''}`}
+        className={`bg-light-background flex-1 p-0.5 rounded-md overflow-y-auto ${isLoading ? 'opacity-60 pointer-events-none blur-xs' : ''}`}
       >
         {hasChildren ? (
           children

@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 
 function App() {
   return (
-    <div className='min-h-screen flex flex-col bg-gray-100 text-gray-800'>
+    <div className='min-h-screen min-w-[300px] flex flex-col bg-gray-100 text-gray-800'>
       <Header />
       <main className='flex-1 px-4 py-8'>
         <Home />

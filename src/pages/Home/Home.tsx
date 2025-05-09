@@ -782,50 +782,53 @@ export default function Home() {
       </div>
 
       {/* Three column layout */}
-      <div className='w-[90%] max-w-[1280px] grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4'>
-        {/* Discogs list */}
-        <div>
-          <ListContainer
-            title='Discogs Collection'
-            loggedInUser={discogsUser}
-            placeholderText='Connect to Discogs to explore your collection'
-            spinnerText='Fetching Discogs...'
-            isLoading={discogsIsLoading}
-          >
-            {activeFolderId !== null ? (
-              <>
-                {discogsFolderItemsCache[activeFolderId]?.map((album, i) => (
-                  <AlbumItem
-                    key={`disc-${album.discogs_id}-${i}`}
+      <div className='w-[90%] min-h-[400px] max-w-[1280px] grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4'>
+        {/* Discogs column */}
+        <div className='flex flex-col'>
+          <div className='h-[min(500px,max(300px,60vh))]'>
+            <ListContainer
+              title='Discogs Collection'
+              loggedInUser={discogsUser}
+              placeholderText='Connect to Discogs to explore your collection'
+              spinnerText='Fetching Discogs...'
+              isLoading={discogsIsLoading}
+            >
+              {activeFolderId !== null ? (
+                <>
+                  {discogsFolderItemsCache[activeFolderId]?.map((album, i) => (
+                    <AlbumItem
+                      key={`disc-${album.discogs_id}-${i}`}
+                      index={i}
+                      title={album.title}
+                      artist={album.artist}
+                      coverUrl={album.cover}
+                      url={album.url}
+                      highlight={notFoundItems.some(
+                        (item) => item.discogs_id === album.discogs_id
+                      )}
+                      toggleable={false} // do not allow for toggling discogs items for now
+                    />
+                  ))}
+                </>
+              ) : (
+                discogsFolders.map((folder, i) => (
+                  <FolderItem
+                    key={folder.id}
                     index={i}
-                    title={album.title}
-                    artist={album.artist}
-                    coverUrl={album.cover}
-                    url={album.url}
-                    highlight={notFoundItems.some(
-                      (item) => item.discogs_id === album.discogs_id
-                    )}
-                    toggleable={false} // do not allow for toggling discogs items for now
+                    name={folder.name}
+                    count={folder.count}
+                    onClick={() =>
+                      handleFolderClick(
+                        parseInt(folder.id.replace('f', '')),
+                        folder.name
+                      )
+                    }
                   />
-                ))}
-              </>
-            ) : (
-              discogsFolders.map((folder, i) => (
-                <FolderItem
-                  key={folder.id}
-                  index={i}
-                  name={folder.name}
-                  count={folder.count}
-                  onClick={() =>
-                    handleFolderClick(
-                      parseInt(folder.id.replace('f', '')),
-                      folder.name
-                    )
-                  }
-                />
-              ))
-            )}
-          </ListContainer>
+                ))
+              )}
+            </ListContainer>
+          </div>
+          {/* Back button */}
           <div className='mt-4'>
             <ButtonWithTooltip
               onClick={() => setActiveFolderId(null)}
@@ -862,30 +865,32 @@ export default function Home() {
           </ButtonWithTooltip>
         </div>
 
-        {/* Spotify list */}
-        <div>
-          <ListContainer
-            title='Spotify Playlist'
-            loggedInUser={spotifyUser}
-            placeholderText='Import items from Discogs to create a playlist'
-            spinnerText='Fetching Spotify...'
-            isLoading={spotifyIsLoading}
-          >
-            {spotifyPlaylist?.map((album, i) => (
-              <AlbumItem
-                key={`spot-${album.title}-${i}`}
-                index={i}
-                title={album.title}
-                artist={album.artist}
-                coverUrl={album.image}
-                url={album.url}
-                toggleable={true}
-                disabled={album.disabled}
-                onToggle={() => handleTogglePlaylistItem(i)}
-              />
-            ))}
-          </ListContainer>
-          {/* Playlist input + create button */}
+        {/* Spotify column */}
+        <div className='flex flex-col'>
+          <div className='h-[min(500px,max(300px,60vh))]'>
+            <ListContainer
+              title='Spotify Playlist'
+              loggedInUser={spotifyUser}
+              placeholderText='Import items from Discogs to create a playlist'
+              spinnerText='Fetching Spotify...'
+              isLoading={spotifyIsLoading}
+            >
+              {spotifyPlaylist?.map((album, i) => (
+                <AlbumItem
+                  key={`spot-${album.title}-${i}`}
+                  index={i}
+                  title={album.title}
+                  artist={album.artist}
+                  coverUrl={album.image}
+                  url={album.url}
+                  toggleable={true}
+                  disabled={album.disabled}
+                  onToggle={() => handleTogglePlaylistItem(i)}
+                />
+              ))}
+            </ListContainer>
+          </div>
+          {/* Playlist input + create button*/}
           <div className='mt-4 flex gap-2'>
             <Input
               type='text'
@@ -904,6 +909,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+
       {/* User Dialog Modal */}
       <UserDialog
         open={dialogOpen}
