@@ -5,18 +5,22 @@ import UserInfo from './UserInfo';
 type ListContainerProps = {
   title: string;
   loggedInUser: { loggedIn: boolean; name: string; profileUrl: string };
-  children: React.ReactNode;
+  placeholderText?: string;
   isLoading?: boolean;
   spinnerText?: string;
+  children: React.ReactNode;
 };
 
 export default function ListContainer({
   title,
   loggedInUser,
-  children,
+  placeholderText = '',
   isLoading = false,
   spinnerText = '',
+  children,
 }: ListContainerProps) {
+  const hasChildren = React.Children.count(children) > 0;
+
   return (
     <div className='text-font-bright relative'>
       {isLoading && (
@@ -36,7 +40,13 @@ export default function ListContainer({
       <ul
         className={`bg-light-background h-[400px] max-h-[400px] p-0.5 rounded-md overflow-y-scroll ${isLoading ? 'opacity-60 pointer-events-none blur-xs' : ''}`}
       >
-        {children}
+        {hasChildren ? (
+          children
+        ) : (
+          <li className='flex h-full items-center justify-center text-center text-base font-bold text-font-mid py-4'>
+            {placeholderText}
+          </li>
+        )}
       </ul>
     </div>
   );

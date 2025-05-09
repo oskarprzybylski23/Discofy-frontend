@@ -788,6 +788,7 @@ export default function Home() {
           <ListContainer
             title='Discogs Collection'
             loggedInUser={discogsUser}
+            placeholderText='Connect to Discogs to explore your collection'
             spinnerText='Fetching Discogs...'
             isLoading={discogsIsLoading}
           >
@@ -866,6 +867,7 @@ export default function Home() {
           <ListContainer
             title='Spotify Playlist'
             loggedInUser={spotifyUser}
+            placeholderText='Import items from Discogs to create a playlist'
             spinnerText='Fetching Spotify...'
             isLoading={spotifyIsLoading}
           >
