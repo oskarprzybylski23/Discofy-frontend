@@ -24,7 +24,6 @@ import {
 } from '../../types/discogs';
 import { ChevronLeft, ChevronRight, OctagonAlert } from 'lucide-react';
 import { SiDiscogs, SiSpotify } from 'react-icons/si';
-import { AiOutlineExclamationCircle } from 'react-icons/ai';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
