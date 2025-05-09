@@ -22,7 +22,11 @@ export const ButtonWithTooltip: React.FC<ButtonWithTooltip> = ({
   children,
   ...buttonProps
 }) => {
-  const button = <Button {...buttonProps}>{children}</Button>;
+  const button = (
+    <Button className='font-bold' {...buttonProps}>
+      {children}
+    </Button>
+  );
 
   if (showTooltip && tooltip) {
     return (
