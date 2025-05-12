@@ -326,14 +326,14 @@ export default function Home() {
             </p>
           ) : (
             <p className='text-failed flex gap-2'>
-              <OctagonAlert className='text-spotify-green' size={24} />
+              <OctagonAlert className='text-failed' size={24} />
               We couldn't find matching albums for your collection this time.
             </p>
           )}
           {notFoundItems?.length > 0 ? (
             <>
               <p className='text-failed flex gap-2'>
-                <OctagonAlert className='text-spotify-green' size={24} />
+                <OctagonAlert className='text-failed' size={24} />
                 <strong>{notFoundItems.length}</strong> album
                 {notFoundItems.length > 1 ? 's' : ''} could not be exported.
               </p>

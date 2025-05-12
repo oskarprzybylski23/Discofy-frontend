@@ -8,7 +8,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { ButtonWithTooltip } from '../button/buttonWithTooltip';
 
 interface UserDialogProps {
   open: boolean;
@@ -51,7 +51,12 @@ export function UserDialog({
 
         {!hideCloseButton && (
           <DialogFooter className='flex justify-end'>
-            <Button onClick={() => setOpen(false)}>Close</Button>
+            <ButtonWithTooltip
+              variant={'outline'}
+              onClick={() => setOpen(false)}
+            >
+              Close
+            </ButtonWithTooltip>
           </DialogFooter>
         )}
       </DialogContent>
