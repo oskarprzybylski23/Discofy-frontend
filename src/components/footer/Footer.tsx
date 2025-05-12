@@ -51,7 +51,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className='w-full gap-2 flex flex-col md:flex-row justify-center items-center text-sm bg-background pb-2'>
+    <footer className='w-full gap-2 flex flex-col-reverse md:flex-row justify-center items-center text-sm bg-background pb-2'>
       <div>
         <span className='text-font-bright flex items-center gap-2'>
           Created by
