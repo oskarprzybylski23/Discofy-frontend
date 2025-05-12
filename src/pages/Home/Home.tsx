@@ -902,11 +902,13 @@ export default function Home() {
               type='text'
               placeholder='Enter your playlist name'
               value={playlistName || ''}
-              disabled={!spotifyPlaylist}
+              disabled={!spotifyPlaylist || spotifyIsLoading}
               onChange={(e) => setPlaylistName(e.target.value)}
             />
             <ButtonWithTooltip
-              disabled={!spotifyPlaylist || playlistName.length == 0}
+              disabled={
+                !spotifyPlaylist || playlistName.length == 0 || spotifyIsLoading
+              }
               onClick={handleCreatePlaylist}
               variant='default'
             >
