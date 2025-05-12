@@ -632,6 +632,7 @@ export default function Home() {
             disabled={
               !discogsUser.loggedIn ||
               !spotifyUser.loggedIn ||
+              spotifyIsLoading ||
               activeFolderId === null
             }
             showTooltip={true}
