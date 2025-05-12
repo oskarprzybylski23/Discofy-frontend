@@ -34,10 +34,12 @@ export function UserDialog({
           <DialogTitle className='text-spotify-green text-xl'>
             {title}
           </DialogTitle>
-          {description && (
+          {description ? (
             <DialogDescription className='text-font-mid text-base'>
               {description}
             </DialogDescription>
+          ) : (
+            <DialogDescription className='sr-only'> </DialogDescription>
           )}
         </DialogHeader>
 
