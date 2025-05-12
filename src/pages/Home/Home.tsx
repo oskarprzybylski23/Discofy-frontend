@@ -897,7 +897,7 @@ export default function Home() {
             </ListContainer>
           </div>
           {/* Playlist input + create button*/}
-          <div className='mt-4 flex gap-2'>
+          <div className='mt-4 flex gap-2 flex-wrap justify-end lg:flex-nowrap'>
             <Input
               type='text'
               placeholder='Enter your playlist name'
