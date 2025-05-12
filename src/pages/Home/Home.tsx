@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useState, useEffect } from 'react';
 import ListContainer from '../../components/listContainer/ListContainer';
 import AlbumItem from '../../components/listContainer/AlbumItem';
@@ -7,34 +6,24 @@ import { Input } from '@/components/ui/input';
 import { UserDialog } from '@/components/modal/userDialog';
 import { ButtonWithTooltip } from '@/components/button/buttonWithTooltip';
 import { toast } from 'sonner';
-import {
-  DiscogsAuthorizeResponse,
-  DiscogsCheckAuthResponse,
-  DiscogsLibraryResponse,
-  DiscogsCollectionResponse,
-  User,
-  DiscogsFolder,
-  DiscogsAlbumItem,
-  SpotifyAlbumItem,
-  SpotifyAuthorizeResponse,
-  SpotifyAuthCheckResponse,
-  SpotifyTransferResponse,
-  CreatePlaylistResponse,
-  LogoutResponse,
-} from '../../types/discogs';
 import { ChevronLeft, ChevronRight, OctagonAlert } from 'lucide-react';
 import { SiDiscogs, SiSpotify } from 'react-icons/si';
-
-const BASE_URL = import.meta.env.VITE_API_URL;
-
-// Create an API client with configuration for cross-origin requests
-const apiClient = axios.create({
-  baseURL: BASE_URL,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import { DiscogsFolder, DiscogsAlbumItem } from '../../types/discogs';
+import { SpotifyAlbumItem } from '@/types/spotify';
+import { User } from '@/types/shared';
+import {
+  getDiscogsAuthUrl,
+  checkDiscogsAuthStatus as apiCheckDiscogsAuthStatus,
+  getDiscogsLibrary,
+  getDiscogsFolderContents,
+  discogsLogout,
+  getSpotifyAuthUrl,
+  checkSpotifyAuthStatus as apiCheckSpotifyAuthStatus,
+  spotifyLogout,
+  transferCollectionToSpotify,
+  createSpotifyPlaylist,
+} from '../../lib/api';
+import { handleExportData, openAuthPopup } from '../../lib/homeUtils';
 
 const defaultUser: User = {
   loggedIn: false,
@@ -54,8 +43,8 @@ export default function Home() {
   >({});
   const [activeFolderId, setActiveFolderId] = useState<number | null>(null);
   const [spotifyPlaylist, setSpotifyPlaylist] = useState<
-    SpotifyAlbumItem[] | null
-  >(null);
+    SpotifyAlbumItem[] | []
+  >([]);
   const [playlistName, setPlaylistName] = useState<string>('');
   const [notFoundItems, setNotFoundItems] = useState<SpotifyAlbumItem[]>([]);
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
@@ -65,73 +54,27 @@ export default function Home() {
   const [dialogContent, setDialogContent] = useState<React.ReactNode>(null);
 
   const handleDiscogsLogin = async () => {
-    // Handle Discogs authorization protocol:
-    // - get auth URL and state ID
-    // - handle auth popup to prompt user to authorize
-    // - import user library if authorization is successfull
     try {
-      const response = await apiClient.post<DiscogsAuthorizeResponse>(
-        `discogs/get_auth_url`,
-        null,
-        {
-          withCredentials: true,
-        }
-      );
-
+      const response = await getDiscogsAuthUrl();
       const { authorize_url } = response.data;
-
       if (!authorize_url) {
         console.error('No authorize URL received from backend.');
         return;
       }
-
-      // Add listener before opening popup
-      const listener = (event: MessageEvent) => {
-        if (event.data === 'authorizationComplete') {
-          popup?.close();
-          // Import user library once authorization is complete
+      openAuthPopup(
+        authorize_url,
+        () => {
           discogsImportUserFolders();
           toast.success('Discogs connected', {
             description: `You have successfully connected to your Discogs account!`,
           });
-
-          cleanup();
-        }
-      };
-
-      const cleanup = () => {
-        window.removeEventListener('message', listener);
-        clearInterval(popupCheckInterval);
-      };
-
-      window.addEventListener('message', listener);
-
-      // Open popup
-      const popup = window.open(
-        authorize_url,
-        'Discogs Login',
-        'width=600,height=700'
-      );
-
-      if (!popup) {
-        console.error('Popup was blocked.');
-        toast.error('Discogs Authorization error', {
-          description: `Authorization window could not be opened. Check for any popup blockers or try again later.`,
-        });
-        cleanup();
-        return;
-      }
-
-      // Poll popup to detect early close
-      const popupCheckInterval = setInterval(() => {
-        if (popup.closed) {
-          console.warn('Popup closed before auth completed.');
-          toast.error('Discogs Authorization Incomplete', {
-            description: `Authorization window was closed before authorization could be completed.`,
+        },
+        (reason) => {
+          toast.error('Discogs Authorization error', {
+            description: reason,
           });
-          cleanup();
         }
-      }, 500);
+      );
     } catch (error) {
       console.error('Error during Discogs login:', error);
       toast.error('Discogs Authorization Error', {
@@ -142,11 +85,7 @@ export default function Home() {
 
   const checkDiscogsAuthStatus = async () => {
     try {
-      const response = await apiClient.get<DiscogsCheckAuthResponse>(
-        `discogs/check_authorization`,
-        { withCredentials: true }
-      );
-
+      const response = await apiCheckDiscogsAuthStatus();
       if (response.data) {
         return response.data.authorized;
       } else {
@@ -158,44 +97,18 @@ export default function Home() {
       }
     } catch (error: any) {
       console.error('Error checking Discogs authorization:', error);
-      if (error.response?.status === 400) {
-        // Handle error when state is not received by the backend
-        toast.error('Discogs Authorization Error', {
-          description:
-            'An error occured while veryfing user authorization. Please try again later.',
-        });
-      } else {
-        toast.error('Discogs Authorization Error', {
-          description:
-            'There was a problem checking your Discogs login status. Try again later!',
-        });
-      }
+      toast.error('Discogs Authorization Error', {
+        description:
+          'There was a problem checking your Discogs login status. Try again later!',
+      });
     }
   };
-  // Check if user is logged in to Discogs or Spotify on page load
-  useEffect(() => {
-    const initializeUser = async () => {
-      checkSpotifyAuthStatus();
-      if (discogsUser.loggedIn) return; // Avoid re-import if already logged in
-
-      const isAuthorized = await checkDiscogsAuthStatus();
-      if (isAuthorized) {
-        await discogsImportUserFolders();
-      }
-    };
-
-    initializeUser();
-  }, []);
 
   const discogsImportUserFolders = async () => {
     setSpinnerText('Importing library...');
     setDiscogsIsLoading(true);
     try {
-      const response = await apiClient.get<DiscogsLibraryResponse>(
-        `discogs/get_library`,
-        { withCredentials: true }
-      );
-
+      const response = await getDiscogsLibrary();
       const { user_info, library } = response.data;
       // TODO: move user info retrieval to checkDiscogsAuth()
       if (user_info) {
@@ -205,50 +118,29 @@ export default function Home() {
           profileUrl: user_info.url,
         });
       } else {
-        console.warn('No user info returned from Discogs.');
         toast.error('Not logged into Discogs', {
           description: `Please connect your Discogs account to import your collection.`,
         });
         return;
       }
-
       if (library && Array.isArray(library)) {
         const formattedFolders = library.map((item: any, i: number) => ({
           id: `f${i}`,
           name: item.folder,
           count: parseInt(item.count),
         }));
-
         setDiscogsFolders(formattedFolders);
       } else {
         // handle case when returned library is empty
         toast.error('Discogs Record Collection', {
           description: `It seems that your record collection is empty. Add some records and try again.`,
         });
-        console.warn('No library folders returned or invalid format.');
       }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const status = error.response?.status;
-        if (status === 401 || status === 403) {
-          toast.error('Discogs user unauthourized', {
-            description: `You are not authorized or your session expired. Please log in.`,
-          });
-        } else {
-          toast.error('Discogs Connection', {
-            description: `We couldn't get your record collection this time, try again later!`,
-          });
-        }
-        console.error(
-          'Error importing from Discogs:',
-          error.response?.data || error.message
-        );
-      } else {
-        toast.error('Discogs Connection', {
-          description: `We couldn't get your record collection this time, try again later!`,
-        });
-        console.error('Unknown error importing from Discogs:', error);
-      }
+    } catch (error: any) {
+      toast.error('Discogs Connection', {
+        description: `We couldn't get your record collection this time, try again later!`,
+      });
+      console.error('Error importing from Discogs:', error);
     } finally {
       setDiscogsIsLoading(false);
     }
@@ -272,13 +164,7 @@ export default function Home() {
     try {
       setSpinnerText('Getting folder contents...');
       setDiscogsIsLoading(true);
-      const response = await apiClient.get<DiscogsCollectionResponse>(
-        `discogs/get_folder_contents`,
-        {
-          params: { folder: folderId },
-        }
-      );
-
+      const response = await getDiscogsFolderContents(folderId);
       if (response.data && Array.isArray(response.data)) {
         // Cache the folder items
         // TODO: set item data more explicitly to avoid API response mismatch introducing bugs
@@ -287,7 +173,7 @@ export default function Home() {
           [folderId]: response.data,
         }));
 
-        // Show the folder
+        // Show the folder contents
         setActiveFolderId(folderId);
       }
     } catch (error) {
@@ -301,25 +187,18 @@ export default function Home() {
 
   const handleDiscogsLogout = async () => {
     try {
-      const response = await apiClient.post<LogoutResponse>(`discogs/logout`, {
-        withCredentials: true,
-      });
-
-      if (response.data.status == 'success')
+      const response = await discogsLogout();
+      if (response.data.status == 'success') {
         // Clear user and cache + reset display
-        setDiscogsUser({
-          loggedIn: false,
-          name: '',
-          profileUrl: '',
+        setDiscogsUser(defaultUser);
+        setDiscogsFolders([]);
+        setDiscogsFolderItemsCache({});
+        setActiveFolderId(null);
+        toast.success('Discogs disconnected', {
+          description: `You have been successfully disconnected from Discogs!`,
         });
-      setDiscogsFolders([]);
-      setDiscogsFolderItemsCache({});
-      setActiveFolderId(null);
-      toast.success('Discogs disconnected', {
-        description: `You have been successfully disconnected from Discogs!`,
-      });
+      }
     } catch (error: any) {
-      // handle better
       console.error('Error disconnecting from Discogs:', error);
       toast.error('Error', {
         description: `We encountered an error while disconnecting you from Discogs.`,
@@ -328,13 +207,8 @@ export default function Home() {
   };
 
   const handleSpotifyLogin = async () => {
-    // Handle Spotify authorization protocol:
-    // - get auth URL and state ID
-    // - handle auth popup to prompt user to authorize
-    // - once authorized, check Spotify auth status to get user info to be displayed
     try {
-      const response =
-        await apiClient.get<SpotifyAuthorizeResponse>(`spotify/get_auth_url`);
+      const response = await getSpotifyAuthUrl();
       const { authorize_url } = response.data;
       if (!authorize_url) {
         console.error('Missing authorize_url backend response:', response.data);
@@ -343,53 +217,20 @@ export default function Home() {
         });
         return;
       }
-
-      // Add listener before opening popup
-      const listener = (event: MessageEvent) => {
-        if (event.data === 'authorizationComplete') {
-          popup?.close();
+      openAuthPopup(
+        authorize_url,
+        () => {
           checkSpotifyAuthStatus();
-
           toast.success('Spotify Connected', {
             description: `You have successfully connected to your Spotify account!`,
           });
-          cleanup();
-        }
-      };
-
-      const cleanup = () => {
-        window.removeEventListener('message', listener);
-        clearInterval(popupCheckInterval);
-      };
-
-      window.addEventListener('message', listener);
-
-      // Open popup
-      const popup = window.open(
-        authorize_url,
-        'Spotify Login',
-        'width=600,height=700'
-      );
-
-      if (!popup) {
-        console.error('Popup was blocked.');
-        toast.error('Popup Blocked', {
-          description: `We couldn’t open the Spotify login window. Please allow popups and try again.`,
-        });
-        cleanup();
-        return;
-      }
-
-      // Poll popup to detect early close
-      const popupCheckInterval = setInterval(() => {
-        if (popup.closed) {
-          console.warn('Popup closed before auth completed.');
-          toast.error('Spotify Authorization Incomplete', {
-            description: `Authorization window was closed before authorization could be completed.`,
+        },
+        (reason) => {
+          toast.error('Spotify Connection Error', {
+            description: reason,
           });
-          cleanup();
         }
-      }, 500);
+      );
     } catch (error: any) {
       console.error('Error during Spotify login:', error);
       toast.error('Spotify Connection Error', {
@@ -400,54 +241,39 @@ export default function Home() {
 
   const checkSpotifyAuthStatus = async () => {
     try {
-      const response = await apiClient.get<SpotifyAuthCheckResponse>(
-        `spotify/check_authorization`,
-        {
-          withCredentials: true,
-        }
-      );
-
+      const response = await apiCheckSpotifyAuthStatus();
       const user_info = response.data;
-
       if (user_info?.authorized) {
         setSpotifyUser({
           loggedIn: true,
           name: user_info.username,
           profileUrl: user_info.url,
         });
-      } else {
-        return;
       }
     } catch (error: any) {
       console.error('Error checking Spotify authorization:', error);
       toast.error('Spotify Authorization Error', {
-        description: `We couldn’t verify your Spotify login. Try again later!`,
+        description: `We couldn't verify your Spotify login. Try again later!`,
       });
     }
   };
 
   const handleSpotifyLogout = async () => {
     try {
-      const response = await apiClient.post<LogoutResponse>(`spotify/logout`, {
-        withCredentials: true,
-      });
-      if (response.data.status == 'success')
+      const response = await spotifyLogout();
+      if (response.data.status == 'success') {
         // Clear user and cache + reset display
-        setSpotifyUser({
-          loggedIn: false,
-          name: '',
-          profileUrl: '',
+        setSpotifyUser(defaultUser);
+        setSpotifyPlaylist([]);
+        setPlaylistName('');
+        toast.success('Spotify disconnected', {
+          description: `You have been successfully disconnected from Spotify!`,
         });
-      setSpotifyPlaylist(null);
-      setPlaylistName('');
-      toast.success('Spotify disconnected', {
-        description: `You have been successfully disconnected from Spotify!`,
-      });
+      }
     } catch (error: any) {
-      // handle better
-      console.error('Error disconnecting from Discogs:', error);
+      console.error('Error disconnecting from Spotify:', error);
       toast.error('Error', {
-        description: `We encountered an error while disconnecting you from Discogs.`,
+        description: `We encountered an error while disconnecting you from Spotify.`,
       });
     }
   };
@@ -461,14 +287,12 @@ export default function Home() {
         });
         return;
       }
-
       if (activeFolderId === null) {
         toast.error('No Folder Selected', {
           description: 'Please select a folder to transfer before proceeding.',
         });
         return;
       }
-
       const collection_items = discogsFolderItemsCache[activeFolderId];
       if (!collection_items || collection_items.length === 0) {
         toast.error('Empty Collection', {
@@ -478,23 +302,11 @@ export default function Home() {
       }
       setSpinnerText('Finding matching albums...');
       setSpotifyIsLoading(true);
-
-      const response = await apiClient.post<SpotifyTransferResponse>(
-        `spotify/transfer_collection`,
-        {
-          collection: collection_items,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
+      const response = await transferCollectionToSpotify(collection_items);
       const exportData = response.data;
       const { playlistData, notFoundItems } = handleExportData(exportData);
-
+      setNotFoundItems(notFoundItems);
+      setSpotifyPlaylist(playlistData);
       if (playlistData?.length > 0) {
         setDialogTitle('Transfer Successful!');
         setDialogDescription(
@@ -504,7 +316,6 @@ export default function Home() {
         setDialogTitle('Transfer Failed!');
         setDialogDescription('We couldn not find any matching Spotify albums');
       }
-
       setDialogContent(
         <>
           {playlistData?.length > 0 ? (
@@ -528,7 +339,7 @@ export default function Home() {
               </p>
               <p>This usually happens if:</p>
               <ul className='list-disc list-inside ml-4'>
-                <li>Album isn't available in Spotify’s catalog, or</li>
+                <li>Album isn't available in Spotify's catalog, or</li>
                 <li>Names differ too much between Discogs and Spotify.</li>
               </ul>
               <p>
@@ -545,7 +356,7 @@ export default function Home() {
             </p>
           )}
           <p className='mt-2'>
-            Please review the matched albums to ensure they’re correct. While we
+            Please review the matched albums to ensure they're correct. While we
             aim to ensure high accuracy, metadata inconsistencies can lead to
             mismatches.
           </p>
@@ -566,46 +377,6 @@ export default function Home() {
     }
   };
 
-  const handleExportData = (exportData: any) => {
-    const playlistData: SpotifyAlbumItem[] = [];
-    const notFoundItems: SpotifyAlbumItem[] = [];
-
-    for (let i = 0; i < exportData.length; i++) {
-      const item = exportData[i];
-      if (item.found) {
-        // Collect items that were matched successfully with Spotify albums
-        playlistData.push({
-          artist: item.artist,
-          title: item.title,
-          image: item.image,
-          url: item.url,
-          id: item.id,
-          uri: item.uri,
-          discogs_id: item.discogs_id,
-          found: true,
-          disabled: false,
-        });
-      } else {
-        // Collect items that weren't found
-        notFoundItems.push({
-          artist: item.artist,
-          title: item.title,
-          image: item.image,
-          url: item.url,
-          id: item.id,
-          uri: item.uri,
-          discogs_id: item.discogs_id,
-          found: true,
-          disabled: false,
-        });
-      }
-    }
-    setNotFoundItems(notFoundItems);
-    setSpotifyPlaylist(playlistData);
-
-    return { playlistData, notFoundItems };
-  };
-
   const handleCreatePlaylist = async () => {
     try {
       if (spotifyUser.loggedIn) {
@@ -623,20 +394,10 @@ export default function Home() {
             });
             return;
           }
-          const response = await apiClient.post<CreatePlaylistResponse>(
-            `spotify/create_playlist`,
-            {
-              playlist: enabledAlbums,
-              playlist_name: playlistName,
-            },
-            {
-              withCredentials: true,
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            }
+          const response = await createSpotifyPlaylist(
+            enabledAlbums,
+            playlistName
           );
-
           if (response.data.status == 'success' && response.data.url) {
             const url = response.data.url;
             // display user dialog
@@ -762,6 +523,18 @@ export default function Home() {
       setSpotifyPlaylist(updatedPlaylist);
     }
   };
+
+  useEffect(() => {
+    const initializeUser = async () => {
+      await checkSpotifyAuthStatus();
+      if (discogsUser.loggedIn) return; // Avoid re-import if already logged in
+      const isAuthorized = await checkDiscogsAuthStatus();
+      if (isAuthorized) {
+        await discogsImportUserFolders();
+      }
+    };
+    initializeUser();
+  }, []);
 
   return (
     <div className='flex flex-col items-center space-y-6 w-full'>
@@ -906,12 +679,14 @@ export default function Home() {
               type='text'
               placeholder='Enter your playlist name'
               value={playlistName || ''}
-              disabled={!spotifyPlaylist || spotifyIsLoading}
+              disabled={spotifyPlaylist?.length <= 0 || spotifyIsLoading}
               onChange={(e) => setPlaylistName(e.target.value)}
             />
             <ButtonWithTooltip
               disabled={
-                !spotifyPlaylist || playlistName.length == 0 || spotifyIsLoading
+                spotifyPlaylist?.length <= 0 ||
+                playlistName.length == 0 ||
+                spotifyIsLoading
               }
               onClick={handleCreatePlaylist}
               variant='default'

@@ -23,12 +23,6 @@ export interface DiscogsLibraryResponse {
   user_info: DiscogsUserInfoResponse;
 }
 
-export interface User {
-  loggedIn: boolean;
-  name: string;
-  profileUrl: string;
-}
-
 export interface DiscogsFolder {
   id: string;
   name: string;
@@ -47,39 +41,3 @@ export type DiscogsAlbumItem = {
 };
 
 export type DiscogsCollectionResponse = DiscogsAlbumItem[];
-
-export type SpotifyAlbumItem = {
-  artist: string;
-  title: string;
-  image: string;
-  url: string;
-  id: string;
-  uri: string;
-  discogs_id: number;
-  found: boolean;
-  disabled?: boolean;
-};
-
-export interface SpotifyAuthorizeResponse {
-  authorize_url: string;
-  state: string;
-}
-
-export interface SpotifyAuthCheckResponse {
-  authorized: boolean;
-  url: string;
-  username: string;
-}
-
-export type SpotifyTransferResponse = SpotifyAlbumItem[];
-
-export type CreatePlaylistResponse = {
-  status: 'success' | 'error';
-  message: string;
-  url: string | null;
-};
-
-export type LogoutResponse = {
-  status: 'success' | 'error';
-  message: string;
-};
