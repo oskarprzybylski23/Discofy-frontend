@@ -47,6 +47,7 @@ export default function Home() {
   const [spotifyUser, setSpotifyUser] = useState<User>(defaultUser);
   const [discogsIsLoading, setDiscogsIsLoading] = useState<boolean>(false);
   const [spotifyIsLoading, setSpotifyIsLoading] = useState<boolean>(false);
+  const [spinnerText, setSpinnerText] = useState<string>('');
   const [discogsFolders, setDiscogsFolders] = useState<DiscogsFolder[]>([]);
   const [discogsFolderItemsCache, setDiscogsFolderItemsCache] = useState<
     Record<number, DiscogsAlbumItem[]>
@@ -187,6 +188,7 @@ export default function Home() {
   }, []);
 
   const discogsImportUserFolders = async () => {
+    setSpinnerText('Importing library...');
     setDiscogsIsLoading(true);
     try {
       const response = await apiClient.get<DiscogsLibraryResponse>(
@@ -268,6 +270,7 @@ export default function Home() {
     }
     // Else, fetch folder items
     try {
+      setSpinnerText('Getting folder contents...');
       setDiscogsIsLoading(true);
       const response = await apiClient.get<DiscogsCollectionResponse>(
         `discogs/get_folder_contents`,
@@ -473,7 +476,7 @@ export default function Home() {
         });
         return;
       }
-
+      setSpinnerText('Finding matching albums...');
       setSpotifyIsLoading(true);
 
       const response = await apiClient.post<SpotifyTransferResponse>(
@@ -607,6 +610,7 @@ export default function Home() {
     try {
       if (spotifyUser.loggedIn) {
         if (spotifyPlaylist) {
+          setSpinnerText('Creating playlist...');
           setSpotifyIsLoading(true);
           const enabledAlbums =
             spotifyPlaylist?.filter((album) => !album.disabled) || [];
@@ -792,7 +796,7 @@ export default function Home() {
               title='Discogs Collection'
               loggedInUser={discogsUser}
               placeholderText='Connect to Discogs to explore your collection'
-              spinnerText='Fetching Discogs...'
+              spinnerText={spinnerText}
               isLoading={discogsIsLoading}
             >
               {activeFolderId !== null ? (
@@ -874,7 +878,7 @@ export default function Home() {
               title='Spotify Playlist'
               loggedInUser={spotifyUser}
               placeholderText='Import items from Discogs to create a playlist'
-              spinnerText='Fetching Spotify...'
+              spinnerText={spinnerText}
               isLoading={spotifyIsLoading}
             >
               {spotifyPlaylist?.map((album, i) => (
