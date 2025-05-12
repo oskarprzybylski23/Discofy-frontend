@@ -28,10 +28,6 @@ main {
   @apply bg-background;
 }
 
-.btn {
-  @apply bg-spotify-green hover:bg-spotify-green-highlight text-white font-semibold py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95;
-}
-
 ::-webkit-scrollbar {
   width: 12px;
 }
@@ -111,7 +107,7 @@ main {
   --destructive: #cd4e4e;
   --border: #212121;
   --input: #ffffff;
-  --ring: #1db954;
+  --ring: #15803b;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
