@@ -1,6 +1,6 @@
 export default function Header() {
   return (
-    <header className='bg-background shadow-md py-4 px-6 flex flex-col gap-3 items-center'>
+    <header className='bg-background shadow-md py-4 px-6 flex flex-col gap-3 items-center text-center'>
       <div className='flex items-center space-x-2'>
         <img
           src='favicon.ico'
