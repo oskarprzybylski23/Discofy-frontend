@@ -36,7 +36,7 @@ export default function Footer() {
       </p>
       <p>
         <a
-          href='https://github.com/oskarprzybylski23/discofy/issues'
+          href='https://github.com/oskarprzybylski23/discofy'
           target='_blank'
           className='hover:underline'
         >
