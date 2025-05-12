@@ -31,7 +31,7 @@ export default function AlbumItem({
     <li>
       <div
         className={cn(
-          'bg-mid-background text-base flex items-center gap-2 mt-0.5 p-2 min-h-10 rounded-md hover:bg-highlight-dark',
+          'bg-mid-background text-base flex items-center gap-2 p-2 min-h-10 rounded-md hover:bg-highlight-dark',
           highlight && 'bg-failed hover:bg-failed-highlight',
           disabled && 'opacity-50',
           className

@@ -13,7 +13,7 @@ export default function FolderItem({
 }: FolderItemProps) {
   return (
     <li onClick={onClick}>
-      <div className='bg-mid-background text-base flex items-center gap-2 mt-0.5 p-2 min-h-10 rounded-md hover:brightness-135 cursor-pointer'>
+      <div className='bg-mid-background text-base flex items-center gap-2 p-2 min-h-10 rounded-md hover:brightness-135 cursor-pointer'>
         <span className='text-font-mid text-sm flex justify-center items-center w-8'>
           {index + 1}
         </span>
