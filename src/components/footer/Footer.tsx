@@ -51,9 +51,9 @@ export default function Footer() {
   };
 
   return (
-    <footer className='w-full gap-2 flex flex-col-reverse md:flex-row justify-center items-center text-sm bg-background pb-2'>
+    <footer className='w-full gap-2 flex flex-col-reverse md:flex-row justify-center items-center text-base bg-background pb-2'>
       <div>
-        <span className='text-font-bright flex items-center gap-2'>
+        <span className='text-font-bright flex flex-wrap justify-center items-center gap-2'>
           Created by
           <a
             className='text-spotify-green hover:text-spotify-green-highlight font-bold flex gap-2 align-middle items-center m-0 no-underline'
@@ -67,7 +67,7 @@ export default function Footer() {
         </span>
       </div>
       <ButtonWithTooltip
-        className='hover:bg-opacity-0 text-spotify-green hover:text-spotify-green-highlight font-bold flex gap-2 align-middle m-0 no-underline'
+        className='hover:bg-opacity-0 text-spotify-green hover:text-spotify-green-highlight font-bold flex gap-2 align-middle m-0 no-underline text-base'
         onClick={handleAboutDialogOpen}
         variant={'ghost'}
       >
