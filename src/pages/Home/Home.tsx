@@ -73,6 +73,10 @@ export default function Home() {
           toast.error('Discogs Authorization error', {
             description: reason,
           });
+        },
+        async () => {
+          const result = await checkDiscogsAuthStatus();
+          return result === true;
         }
       );
     } catch (error) {
@@ -229,6 +233,11 @@ export default function Home() {
           toast.error('Spotify Connection Error', {
             description: reason,
           });
+        },
+        async () => {
+          await checkSpotifyAuthStatus();
+          const resp = await apiCheckSpotifyAuthStatus();
+          return !!(resp.data && resp.data.authorized);
         }
       );
     } catch (error: any) {

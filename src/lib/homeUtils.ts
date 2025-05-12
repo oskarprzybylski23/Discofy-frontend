@@ -40,7 +40,8 @@ export function handleExportData(exportData: any) {
 export function openAuthPopup(
   authorize_url: string,
   onComplete: () => void,
-  onError: (reason: string) => void
+  onError: (reason: string) => void,
+  checkStatus: () => Promise<boolean>
 ) {
   // Add listener before opening popup
   const listener = (event: MessageEvent) => {
@@ -72,9 +73,19 @@ export function openAuthPopup(
   }
 
   // Poll popup to detect early close
-  const popupCheckInterval = setInterval(() => {
+  const popupCheckInterval = setInterval(async () => {
     if (popup.closed) {
-      onError('Popup closed before auth completed.');
+      // Check status before deciding
+      try {
+        const isAuthenticated = await checkStatus();
+        if (isAuthenticated) {
+          onComplete();
+        } else {
+          onError('Popup closed before auth completed.');
+        }
+      } catch (e) {
+        onError('Popup closed and status check failed.');
+      }
       cleanup();
     }
   }, 500);
