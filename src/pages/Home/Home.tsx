@@ -877,7 +877,11 @@ export default function Home() {
             <ListContainer
               title='Spotify Playlist'
               loggedInUser={spotifyUser}
-              placeholderText='Import items from Discogs to create a playlist'
+              placeholderText={
+                spotifyUser.loggedIn
+                  ? 'Import items from Discogs to create a playlist'
+                  : 'Connect to Spotify to create a playlist'
+              }
               spinnerText={spinnerText}
               isLoading={spotifyIsLoading}
             >
