@@ -22,6 +22,7 @@ import {
   spotifyLogout,
   transferCollectionToSpotify,
   createSpotifyPlaylist,
+  getTransferCollectionStatus,
 } from '../../lib/api';
 import { handleExportData, openAuthPopup } from '../../lib/homeUtils';
 
@@ -311,8 +312,41 @@ export default function Home() {
       }
       setSpinnerText('Finding matching albums...');
       setSpotifyIsLoading(true);
+      // Start the transfer (celery task in backend) and get task_id and progress_key
       const response = await transferCollectionToSpotify(collection_items);
-      const exportData = response.data;
+      const { task_id, progress_key } = response.data;
+
+      // Poll for progress and result
+      let finished = false;
+      let result = null;
+      let progress = { current: 0, total: 1 };
+      while (!finished) {
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait interval between polls
+        const statusResp = await getTransferCollectionStatus(
+          task_id,
+          progress_key
+        );
+        const { state, progress: prog, result: res } = statusResp.data;
+
+        // Update progress
+        if (prog) {
+          progress = prog;
+          setSpinnerText(
+            `Matching albums... (${progress.current} of ${progress.total})`
+          );
+        }
+
+        if (state === 'SUCCESS') {
+          finished = true;
+          result = res;
+        } else if (state === 'FAILURE') {
+          throw new Error('Transfer failed on the server.');
+        }
+      }
+
+      // Handle the result
+      const exportData = result;
+
       const { playlistData, notFoundItems } = handleExportData(exportData);
       setNotFoundItems(notFoundItems);
       setSpotifyPlaylist(playlistData);

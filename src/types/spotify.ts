@@ -21,7 +21,20 @@ export interface SpotifyAuthCheckResponse {
   username: string;
 }
 
-export type SpotifyTransferResponse = SpotifyAlbumItem[];
+export type SpotifyTransferResponse = {
+  task_id: 'string';
+  progress_key: 'string';
+};
+
+export type TransferCollectionStatusResponse = {
+  state: 'PENDING' | 'STARTED' | 'SUCCESS' | 'FAILURE' | string;
+  progress: {
+    current: number;
+    total: number;
+    finished?: boolean;
+  };
+  result: SpotifyAlbumItem[];
+};
 
 export type CreatePlaylistResponse = {
   status: 'success' | 'error';

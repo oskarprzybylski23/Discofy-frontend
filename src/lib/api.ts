@@ -12,6 +12,7 @@ import {
   SpotifyTransferResponse,
   CreatePlaylistResponse,
   SpotifyAlbumItem,
+  TransferCollectionStatusResponse,
 } from '@/types/spotify';
 import { LogoutResponse } from '@/types/shared';
 
@@ -78,7 +79,9 @@ export async function spotifyLogout() {
   });
 }
 
-export async function transferCollectionToSpotify(collection: DiscogsAlbumItem[]) {
+export async function transferCollectionToSpotify(
+  collection: DiscogsAlbumItem[]
+) {
   return apiClient.post<SpotifyTransferResponse>(
     'spotify/transfer_collection',
     { collection },
@@ -94,5 +97,17 @@ export async function createSpotifyPlaylist(
     'spotify/create_playlist',
     { playlist, playlist_name: playlistName },
     { withCredentials: true, headers: { 'Content-Type': 'application/json' } }
+  );
+}
+
+export async function getTransferCollectionStatus(
+  task_id: string,
+  progress_key: string
+) {
+  return apiClient.get<TransferCollectionStatusResponse>(
+    '/spotify/transfer_collection_status',
+    {
+      params: { task_id, progress_key },
+    }
   );
 }
