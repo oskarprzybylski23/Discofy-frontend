@@ -37,7 +37,10 @@ export default function Home() {
   const [spotifyUser, setSpotifyUser] = useState<User>(defaultUser);
   const [discogsIsLoading, setDiscogsIsLoading] = useState<boolean>(false);
   const [spotifyIsLoading, setSpotifyIsLoading] = useState<boolean>(false);
-  const [spinnerText, setSpinnerText] = useState<string>('');
+  const [discogsSpinnerText, setDiscogsSpinnerText] = useState<string>('');
+  const [spotifySpinnerText, setSpotifySpinnerText] = useState<string>('');
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [progressText, setProgressText] = useState<string>(' ');
   const [discogsFolders, setDiscogsFolders] = useState<DiscogsFolder[]>([]);
   const [discogsFolderItemsCache, setDiscogsFolderItemsCache] = useState<
     Record<number, DiscogsAlbumItem[]>
@@ -110,7 +113,7 @@ export default function Home() {
   };
 
   const discogsImportUserFolders = async () => {
-    setSpinnerText('Importing library...');
+    setDiscogsSpinnerText('Importing library...');
     setDiscogsIsLoading(true);
     try {
       const response = await getDiscogsLibrary();
@@ -167,7 +170,7 @@ export default function Home() {
     }
     // Else, fetch folder items
     try {
-      setSpinnerText('Getting folder contents...');
+      setDiscogsSpinnerText('Getting folder contents...');
       setDiscogsIsLoading(true);
       const response = await getDiscogsFolderContents(folderId);
       if (response.data && Array.isArray(response.data)) {
@@ -310,8 +313,9 @@ export default function Home() {
         });
         return;
       }
-      setSpinnerText('Finding matching albums...');
+      setSpotifySpinnerText('Finding matching albums...');
       setSpotifyIsLoading(true);
+      setExportProgress(1);
       // Start the transfer (celery task in backend) and get task_id and progress_key
       const response = await transferCollectionToSpotify(collection_items);
       const { task_id, progress_key } = response.data;
@@ -321,7 +325,7 @@ export default function Home() {
       let result = null;
       let progress = { current: 0, total: 1 };
       while (!finished) {
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait interval between polls
+        await new Promise((resolve) => setTimeout(resolve, 500)); // Wait interval between polls
         const statusResp = await getTransferCollectionStatus(
           task_id,
           progress_key
@@ -331,9 +335,10 @@ export default function Home() {
         // Update progress
         if (prog) {
           progress = prog;
-          setSpinnerText(
-            `Matching albums... (${progress.current} of ${progress.total})`
-          );
+          setProgressText(`${progress.current} out of ${progress.total}`);
+          let progressValue = (progress.current / progress.total) * 100;
+          console.log(progressValue);
+          setExportProgress(progressValue);
         }
 
         if (state === 'SUCCESS') {
@@ -359,56 +364,65 @@ export default function Home() {
         setDialogTitle('Transfer Failed!');
         setDialogDescription('We couldn not find any matching Spotify albums');
       }
-      setDialogContent(
-        <>
-          {playlistData?.length > 0 ? (
-            <p>
-              <strong>{playlistData?.length}</strong>{' '}
-              {playlistData.length > 1 ? 'albums were' : 'album was'} added to
-              the playlist creator.
-            </p>
-          ) : (
+      setDialogContent(() => {
+        const matchedCount = playlistData?.length || 0;
+        const unmatchedCount = notFoundItems?.length || 0;
+
+        if (matchedCount === 0 && unmatchedCount === 0) {
+          // Case with no playlist data at all
+          return (
             <p className='text-failed flex gap-2'>
               <OctagonAlert className='text-failed' size={24} />
-              We couldn't find matching albums for your collection this time.
+              No albums were selected or found to process.
             </p>
-          )}
-          {notFoundItems?.length > 0 ? (
-            <>
-              <p className='text-failed flex gap-2'>
-                <OctagonAlert className='text-failed' size={24} />
-                <strong>{notFoundItems.length}</strong> album
-                {notFoundItems.length > 1 ? 's' : ''} could not be exported.
-              </p>
-              <p>This usually happens if:</p>
-              <ul className='list-disc list-inside ml-4'>
-                <li>Album isn't available in Spotify's catalog, or</li>
-                <li>Names differ too much between Discogs and Spotify.</li>
-              </ul>
+          );
+        }
+
+        return (
+          <>
+            {matchedCount > 0 && (
               <p>
-                {' '}
-                These unmatched albums are highlighted in{' '}
-                <span className='text-failed'>red</span> in your Discogs
-                Collection.
+                <strong>{matchedCount}</strong>{' '}
+                {matchedCount > 1 ? 'albums were' : 'album was'} added to the
+                playlist creator.
               </p>
-            </>
-          ) : (
-            <p className='text-spotify-green'>
-              All albums in your collection were successfully matched with items
-              in the Spotify catalog.
+            )}
+            {unmatchedCount > 0 ? (
+              <>
+                <p className='text-failed flex gap-2'>
+                  <OctagonAlert className='text-failed' size={24} />
+                  <strong>{unmatchedCount}</strong> album
+                  {unmatchedCount > 1 ? 's' : ''} could not be exported.
+                </p>
+                <p>This usually happens if:</p>
+                <ul className='list-disc list-inside ml-4'>
+                  <li>Album isn't available in Spotify's catalog, or</li>
+                  <li>Names differ too much between Discogs and Spotify.</li>
+                </ul>
+                <p>
+                  These unmatched albums are highlighted in{' '}
+                  <span className='text-failed'>red</span> in your Discogs
+                  Collection.
+                </p>
+              </>
+            ) : matchedCount > 0 ? (
+              <p className='text-spotify-green'>
+                All albums in your collection were successfully matched with
+                items in the Spotify catalog.
+              </p>
+            ) : null}
+            <p className='mt-2'>
+              Please review the matched albums to ensure they're correct. While
+              we aim to ensure high accuracy, metadata inconsistencies can lead
+              to mismatches.
             </p>
-          )}
-          <p className='mt-2'>
-            Please review the matched albums to ensure they're correct. While we
-            aim to ensure high accuracy, metadata inconsistencies can lead to
-            mismatches.
-          </p>
-          <p className='mt-2'>
-            You can make adjustments to the playlist before finalizing it. When
-            you're ready, click <strong>'Create Playlist'</strong>.
-          </p>
-        </>
-      );
+            <p className='mt-2'>
+              You can make adjustments to the playlist before finalizing it.
+              When you're ready, click <strong>'Create Playlist'</strong>.
+            </p>
+          </>
+        );
+      });
       setDialogOpen(true);
     } catch (error: any) {
       console.error('Error transferring Discogs items to Spotify:', error);
@@ -416,6 +430,8 @@ export default function Home() {
         description: `Something went wrong while moving your collection. Please try again.`,
       });
     } finally {
+      setExportProgress(0);
+      setProgressText('');
       setSpotifyIsLoading(false);
     }
   };
@@ -424,7 +440,7 @@ export default function Home() {
     try {
       if (spotifyUser.loggedIn) {
         if (spotifyPlaylist) {
-          setSpinnerText('Creating playlist...');
+          setSpotifySpinnerText('Creating playlist...');
           setSpotifyIsLoading(true);
           const enabledAlbums =
             spotifyPlaylist?.filter((album) => !album.disabled) || [];
@@ -612,7 +628,7 @@ export default function Home() {
               title='Discogs Collection'
               loggedInUser={discogsUser}
               placeholderText='Connect to Discogs to explore your collection'
-              spinnerText={spinnerText}
+              spinnerText={discogsSpinnerText}
               isLoading={discogsIsLoading}
             >
               {activeFolderId !== null ? (
@@ -699,8 +715,10 @@ export default function Home() {
                   ? 'Import items from Discogs to create a playlist'
                   : 'Connect to Spotify to create a playlist'
               }
-              spinnerText={spinnerText}
+              spinnerText={spotifySpinnerText}
               isLoading={spotifyIsLoading}
+              loadingProgress={exportProgress}
+              progressText={progressText}
             >
               {spotifyPlaylist?.map((album, i) => (
                 <AlbumItem
