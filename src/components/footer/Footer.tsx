@@ -18,6 +18,9 @@ export default function Footer() {
         records in the Spotify catalogue. You can then{' '}
         <strong>save it as a playlist</strong>.
       </p>
+      <p>
+        We don't handle singles or 12" yet. This option will come in the future.
+      </p>
       <hr className='mb-3 border-t border-1/8 w-full border-spotify-green' />
       <p>
         We use cookies <strong>only for session management</strong> — to keep

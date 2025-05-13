@@ -307,7 +307,12 @@ export default function Home() {
         return;
       }
       const collection_items = discogsFolderItemsCache[activeFolderId];
-      if (!collection_items || collection_items.length === 0) {
+      // TODO: Implement filtering in UI
+      // Exclude 'Singles' from transfered items
+      const collection_filtered = collection_items.filter(
+        (item) => !item.descriptions?.includes('Single')
+      );
+      if (!collection_filtered || collection_filtered.length === 0) {
         toast.error('Empty Collection', {
           description: 'The selected folder has no items to transfer.',
         });
@@ -317,7 +322,7 @@ export default function Home() {
       setSpotifyIsLoading(true);
       setExportProgress(1);
       // Start the transfer (celery task in backend) and get task_id and progress_key
-      const response = await transferCollectionToSpotify(collection_items);
+      const response = await transferCollectionToSpotify(collection_filtered);
       const { task_id, progress_key } = response.data;
 
       // Poll for progress and result
@@ -632,20 +637,25 @@ export default function Home() {
             >
               {activeFolderId !== null ? (
                 <>
-                  {discogsFolderItemsCache[activeFolderId]?.map((album, i) => (
-                    <AlbumItem
-                      key={`disc-${album.discogs_id}-${i}`}
-                      index={i}
-                      title={album.title}
-                      artist={album.artists.join(', ')}
-                      coverUrl={album.cover}
-                      url={album.url}
-                      highlight={notFoundItems.some(
-                        (item) => item.discogs_id === album.discogs_id
-                      )}
-                      toggleable={false} // do not allow for toggling discogs items for now
-                    />
-                  ))}
+                  {discogsFolderItemsCache[activeFolderId]?.map((album, i) => {
+                    // Check for singles so they can be flagged
+                    const isSingle = album.descriptions?.includes('Single');
+                    return (
+                      <AlbumItem
+                        key={`disc-${album.discogs_id}-${i}`}
+                        index={i}
+                        title={album.title}
+                        artist={album.artists.join(', ')}
+                        coverUrl={album.cover}
+                        url={album.url}
+                        {...(isSingle && { type: 'Single' })}
+                        highlight={notFoundItems.some(
+                          (item) => item.discogs_id === album.discogs_id
+                        )}
+                        toggleable={false} // do not allow for toggling discogs items for now
+                      />
+                    );
+                  })}
                 </>
               ) : (
                 discogsFolders.map((folder, i) => (

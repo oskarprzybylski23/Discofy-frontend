@@ -8,6 +8,7 @@ type AlbumItemProps = {
   artist: string;
   coverUrl: string;
   url: string;
+  type?: string;
   highlight?: boolean;
   className?: string;
   toggleable?: boolean;
@@ -21,6 +22,7 @@ export default function AlbumItem({
   artist,
   coverUrl,
   url,
+  type,
   highlight = false,
   className,
   toggleable = false,
@@ -34,6 +36,7 @@ export default function AlbumItem({
           'bg-mid-background text-base flex items-center gap-2 p-2 min-h-10 rounded-md hover:bg-highlight-dark',
           highlight && 'bg-failed hover:bg-failed-highlight',
           disabled && 'opacity-50',
+          type === 'Single' && 'opacity-50',
           className
         )}
       >
@@ -48,6 +51,14 @@ export default function AlbumItem({
             </a>
           </span>
           <span className='text-font-mid text-sm w-fit'>{artist}</span>
+        </div>
+        <div
+          className={cn(
+            'text-sm font-bold',
+            type === 'Single' && 'text-failed'
+          )}
+        >
+          {type}
         </div>
         {toggleable && onToggle && (
           <ButtonWithTooltip
