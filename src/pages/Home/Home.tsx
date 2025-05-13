@@ -336,8 +336,7 @@ export default function Home() {
         if (prog) {
           progress = prog;
           setProgressText(`${progress.current} out of ${progress.total}`);
-          let progressValue = (progress.current / progress.total) * 100;
-          console.log(progressValue);
+          let progressValue = (progress.current / progress.total) * 100; // calculate progress percentage
           setExportProgress(progressValue);
         }
 
