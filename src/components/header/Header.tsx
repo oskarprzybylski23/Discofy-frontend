@@ -5,7 +5,7 @@ export default function Header() {
         <img
           src='favicon.ico'
           alt='Discofy logo'
-          className='w-6 h-6 bg-spotify-green'
+          className='w-7 h-7 bg-spotify-green rounded-xs'
         />
         <h1 className='text-4xl text-spotify-green font-bold'>Discofy</h1>
       </div>
