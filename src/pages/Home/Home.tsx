@@ -637,7 +637,7 @@ export default function Home() {
                       key={`disc-${album.discogs_id}-${i}`}
                       index={i}
                       title={album.title}
-                      artist={album.artist}
+                      artist={album.artists.join(', ')}
                       coverUrl={album.cover}
                       url={album.url}
                       highlight={notFoundItems.some(

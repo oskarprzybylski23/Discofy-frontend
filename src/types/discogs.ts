@@ -30,13 +30,15 @@ export interface DiscogsFolder {
 }
 
 export type DiscogsAlbumItem = {
-  artist: string;
-  cover: string;
-  discogs_id: number;
   index: number;
+  artists: string[];
   title: string;
-  url: string;
   year: number;
+  discogs_id: number;
+  cover: string;
+  format: string;
+  descriptions: string[];
+  url: string;
   disabled?: boolean;
 };
 
