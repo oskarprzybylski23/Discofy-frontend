@@ -43,12 +43,16 @@ export function openAuthPopup(
   onError: (reason: string) => void,
   checkStatus: () => Promise<boolean>
 ) {
+  let importTriggered = false;
   // Add listener before opening popup
+  // Trigger completion on receiveing message from backend
   const listener = async (event: MessageEvent) => {
     if (event.data === 'authorizationComplete') {
       popup?.close();
       const isAuthenticated = await checkStatus();
-      if (isAuthenticated) {
+
+      if (isAuthenticated && !importTriggered) {
+        importTriggered = true;
         onComplete();
       }
       cleanup();
@@ -77,13 +81,16 @@ export function openAuthPopup(
 
   // Poll popup to detect early close
   const popupCheckInterval = setInterval(async () => {
+    console.log('Check interval');
     if (popup.closed) {
-      // Check status before deciding
+      // Check status before deciding in case user successfully logged in but closed popup manually
       try {
         const isAuthenticated = await checkStatus();
-        if (isAuthenticated) {
+
+        if (isAuthenticated && !importTriggered) {
+          importTriggered = true;
           onComplete();
-        } else {
+        } else if (!isAuthenticated) {
           onError('Popup closed before auth completed.');
         }
       } catch (e) {

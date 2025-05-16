@@ -601,6 +601,7 @@ export default function Home() {
   useEffect(() => {
     const initializeUser = async () => {
       await checkSpotifyAuthStatus();
+
       if (discogsUser.loggedIn) return; // Avoid re-import if already logged in
       const discogsUserStatus = await checkDiscogsAuthStatus();
       if (discogsUserStatus?.authorized) {
