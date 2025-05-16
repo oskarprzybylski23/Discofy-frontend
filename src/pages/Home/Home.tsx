@@ -8,7 +8,11 @@ import { ButtonWithTooltip } from '@/components/button/buttonWithTooltip';
 import { toast } from 'sonner';
 import { ChevronLeft, ChevronRight, OctagonAlert } from 'lucide-react';
 import { SiDiscogs, SiSpotify } from 'react-icons/si';
-import { DiscogsFolder, DiscogsAlbumItem } from '../../types/discogs';
+import {
+  DiscogsFolder,
+  DiscogsAlbumItem,
+  DiscogsLibraryFolderResponse,
+} from '../../types/discogs';
 import { SpotifyAlbumItem } from '@/types/spotify';
 import { User } from '@/types/shared';
 import {
@@ -134,14 +138,16 @@ export default function Home() {
     setDiscogsIsLoading(true);
     try {
       const response = await getDiscogsLibrary();
-      const { user_info, library } = response.data;
+      const { folders } = response.data;
 
-      if (library && Array.isArray(library)) {
-        const formattedFolders = library.map((item: any, i: number) => ({
-          id: `f${i}`,
-          name: item.folder,
-          count: parseInt(item.count),
-        }));
+      if (folders && Array.isArray(folders)) {
+        const formattedFolders = folders.map(
+          (item: DiscogsLibraryFolderResponse, i: number) => ({
+            id: `f${i}`,
+            name: item.folder,
+            count: parseInt(item.count),
+          })
+        );
         setDiscogsFolders(formattedFolders);
       } else {
         // handle case when returned library is empty

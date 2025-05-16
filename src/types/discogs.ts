@@ -22,8 +22,7 @@ export interface DiscogsUserInfoResponse {
 }
 
 export interface DiscogsLibraryResponse {
-  library: DiscogsLibraryFolderResponse[];
-  user_info: DiscogsUserInfoResponse;
+  folders: DiscogsLibraryFolderResponse[];
 }
 
 export interface DiscogsFolder {
