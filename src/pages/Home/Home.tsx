@@ -124,7 +124,7 @@ export default function Home() {
           url: '',
         };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error checking Discogs authorization:', error);
       toast.error('Discogs Authorization Error', {
         description:
@@ -155,7 +155,7 @@ export default function Home() {
           description: `It seems that your record collection is empty. Add some records and try again.`,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error('Discogs Connection', {
         description: `We couldn't get your record collection this time, try again later!`,
       });
@@ -195,7 +195,7 @@ export default function Home() {
         // Show the folder contents
         setActiveFolderId(folderId);
       }
-    } catch (error) {
+    } catch {
       toast.error('Discogs Import Error', {
         description: `An error occured when trying to get your record collection. Try again later!`,
       });
@@ -217,7 +217,7 @@ export default function Home() {
           description: `You have been successfully disconnected from Discogs!`,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error disconnecting from Discogs:', error);
       toast.error('Error', {
         description: `We encountered an error while disconnecting you from Discogs.`,
@@ -255,7 +255,7 @@ export default function Home() {
           return !!(resp.data && resp.data.authorized);
         }
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error during Spotify login:', error);
       toast.error('Spotify Connection Error', {
         description: `We couldn't connect your Spotify account this time. Try again later!`,
@@ -274,7 +274,7 @@ export default function Home() {
           profileUrl: user_info.url,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error checking Spotify authorization:', error);
       toast.error('Spotify Authorization Error', {
         description: `We couldn't verify your Spotify login. Try again later!`,
@@ -294,7 +294,7 @@ export default function Home() {
           description: `You have been successfully disconnected from Spotify!`,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error disconnecting from Spotify:', error);
       toast.error('Error', {
         description: `We encountered an error while disconnecting you from Spotify.`,
@@ -352,7 +352,7 @@ export default function Home() {
         if (prog) {
           progress = prog;
           setProgressText(`${progress.current} out of ${progress.total}`);
-          let progressValue = (progress.current / progress.total) * 100; // calculate progress percentage
+          const progressValue = (progress.current / progress.total) * 100; // calculate progress percentage
           setExportProgress(progressValue);
         }
 
@@ -439,7 +439,7 @@ export default function Home() {
         );
       });
       setDialogOpen(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error transferring Discogs items to Spotify:', error);
       toast.error('Transfer Failed', {
         description: `Something went wrong while moving your collection. Please try again.`,
@@ -609,7 +609,7 @@ export default function Home() {
       }
     };
     initializeUser();
-  }, []);
+  }, [discogsUser.loggedIn]);
 
   return (
     <div className='flex flex-col items-center space-y-6 w-full'>
