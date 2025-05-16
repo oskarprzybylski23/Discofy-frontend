@@ -44,10 +44,13 @@ export function openAuthPopup(
   checkStatus: () => Promise<boolean>
 ) {
   // Add listener before opening popup
-  const listener = (event: MessageEvent) => {
+  const listener = async (event: MessageEvent) => {
     if (event.data === 'authorizationComplete') {
       popup?.close();
-      onComplete();
+      const isAuthenticated = await checkStatus();
+      if (isAuthenticated) {
+        onComplete();
+      }
       cleanup();
     }
   };

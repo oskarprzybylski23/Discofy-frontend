@@ -65,22 +65,27 @@ export default function Home() {
         console.error('No authorize URL received from backend.');
         return;
       }
+      // Open a popup window for Discogs OAuth authentication
       openAuthPopup(
         authorize_url,
-        () => {
+        // Success callback - runs when auth is successful
+        async () => {
           discogsImportUserFolders();
           toast.success('Discogs connected', {
             description: `You have successfully connected to your Discogs account!`,
           });
         },
+        // Error callback - runs if auth fails
         (reason) => {
           toast.error('Discogs Authorization error', {
             description: reason,
           });
         },
+        // Auth check callback - polls to check if auth is complete
         async () => {
-          const result = await checkDiscogsAuthStatus();
-          return result === true;
+          const userStatus = await checkDiscogsAuthStatus();
+
+          return userStatus?.authorized === true;
         }
       );
     } catch (error) {
@@ -91,17 +96,29 @@ export default function Home() {
     }
   };
 
+  // Check if user is authorized with Discogs and update user state accordingly
   const checkDiscogsAuthStatus = async () => {
     try {
       const response = await apiCheckDiscogsAuthStatus();
-      if (response.data) {
-        return response.data.authorized;
-      } else {
-        toast.error('Discogs Authorization Error', {
-          description:
-            'We could not verify your Discogs authorization. Please try again later.',
+      const user_info = response.data;
+
+      if (user_info?.authorized) {
+        // If authorized, update user state
+        setDiscogsUser({
+          loggedIn: true,
+          name: user_info.username,
+          profileUrl: user_info.url,
         });
-        return false;
+
+        return user_info;
+      } else {
+        // Return default unauthorized user object
+        return {
+          authorized: false,
+          username: '',
+          id: null,
+          url: '',
+        };
       }
     } catch (error: any) {
       console.error('Error checking Discogs authorization:', error);
@@ -118,19 +135,7 @@ export default function Home() {
     try {
       const response = await getDiscogsLibrary();
       const { user_info, library } = response.data;
-      // TODO: move user info retrieval to checkDiscogsAuth()
-      if (user_info) {
-        setDiscogsUser({
-          loggedIn: true,
-          name: user_info.username,
-          profileUrl: user_info.url,
-        });
-      } else {
-        toast.error('Not logged into Discogs', {
-          description: `Please connect your Discogs account to import your collection.`,
-        });
-        return;
-      }
+
       if (library && Array.isArray(library)) {
         const formattedFolders = library.map((item: any, i: number) => ({
           id: `f${i}`,
@@ -591,8 +596,8 @@ export default function Home() {
     const initializeUser = async () => {
       await checkSpotifyAuthStatus();
       if (discogsUser.loggedIn) return; // Avoid re-import if already logged in
-      const isAuthorized = await checkDiscogsAuthStatus();
-      if (isAuthorized) {
+      const discogsUserStatus = await checkDiscogsAuthStatus();
+      if (discogsUserStatus?.authorized) {
         await discogsImportUserFolders();
       }
     };

@@ -5,6 +5,9 @@ export interface DiscogsAuthorizeResponse {
 
 export interface DiscogsCheckAuthResponse {
   authorized: boolean;
+  username: string;
+  id: number;
+  url: string;
 }
 
 export interface DiscogsLibraryFolderResponse {
