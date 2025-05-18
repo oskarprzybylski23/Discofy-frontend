@@ -29,7 +29,7 @@ export function UserDialog({
 }: UserDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className='max-w-md md:max-w-xl'>
+      <DialogContent className='max-h-dvh max-w-md md:h-dvh md:max-w-2xl lg:max-h-[600px] lg:max-w-2xl overflow-y-auto'>
         <DialogHeader>
           <DialogTitle className='text-spotify-green text-xl'>
             {title}
@@ -44,7 +44,7 @@ export function UserDialog({
         </DialogHeader>
 
         {children && (
-          <div className='flex flex-col items-center space-y-4 mt-4'>
+          <div className='flex flex-col items-center space-y-4 mt-4 overflow-auto'>
             {children}
           </div>
         )}
