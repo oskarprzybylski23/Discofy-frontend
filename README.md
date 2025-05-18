@@ -3,6 +3,16 @@
 Discofy is a web application that lets users create Spotify playlists from their personal Discogs libraries. This project serves as the user interface for the Discofy and communicates with a Flask backend.
 
 > **Backend:** The Flask backend is in a separate repository: [Discofy Backend](https://github.com/oskarprzybylski23/Discofy)
+## 🖼Demo
+
+<div>
+    <a href="https://www.loom.com/share/13052ba3d5284f97bd7aa994ac213298" target="_blank">
+      <p>Discofy Demo 2.0 - Watch Video</p>
+    </a>
+    <a href="https://www.loom.com/share/13052ba3d5284f97bd7aa994ac213298" target="_blank">
+      <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/13052ba3d5284f97bd7aa994ac213298-f9009e6e37778c29-full-play.gif">
+    </a>
+  </div>
 
 ## 🏗️ Architecture
 
