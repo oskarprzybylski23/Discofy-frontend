@@ -226,6 +226,13 @@ export default function Home() {
   };
 
   const handleSpotifyLogin = async () => {
+    {
+      /* Spotify API limit temporary solution while resolving Spotify API quota extensions issues */
+    }
+    toast.error('Spotify Restrictions', {
+      description:
+        'Due to Spotify API changes, we are not able to offer this app to everyone at the moment. If you would like to get experimental access consider getting in touch via the email in the banner.',
+    });
     try {
       const response = await getSpotifyAuthUrl();
       const { authorize_url } = response.data;
@@ -598,6 +605,27 @@ export default function Home() {
     }
   };
 
+  const handleDemoDialogOpen = () => {
+    {
+      /* Spotify API limit temporary solution while resolving Spotify API quota extensions issues */
+    }
+    const dialogContent = (
+      <>
+        {' '}
+        <div className='relative pb-[56.69%] h-0 w-full'>
+          <iframe
+            src='https://www.loom.com/embed/13052ba3d5284f97bd7aa994ac213298?sid=81d83047-d6ce-4b28-a63f-358279e742f4'
+            className='absolute top-0 left-0 w-full h-full'
+          ></iframe>
+        </div>
+      </>
+    );
+    setDialogTitle('Discofy Demo');
+    setDialogContent(dialogContent);
+    setDialogDescription('Play the video to see how to use Discofy');
+    setDialogOpen(true);
+  };
+
   useEffect(() => {
     const initializeUser = async () => {
       await checkSpotifyAuthStatus();
@@ -613,6 +641,31 @@ export default function Home() {
 
   return (
     <div className='flex flex-col items-center space-y-6 w-full'>
+      {/* Spotify API Limit Banner - Temporary solution while resolving Spotify API quota extensions issues */}
+      <div className='w-full bg-failed text-font-bright text-center py-2 px-4 rounded mb-2 font-semibold flex flex-col items-center justify-center gap-2'>
+        <SiSpotify className='inline text-spotify-green' size={24} />
+        <span>
+          Due to recent Spotify API changes, we can't offer the full
+          functionality right now. We are adapting to the new Spotify limits.
+          Thank you for your patience! <br />
+          If you would like to use the app, you can still email us at{' '}
+          <a
+            className='text-spotify-green'
+            href='mailto:oskar.przybylski23@gmail.com'
+          >
+            oskar.przybylski23@gmail.com
+          </a>{' '}
+          so we can approve your request.
+          <br /> You can check the app's functionality in demo below: <br />
+          <ButtonWithTooltip
+            variant={'ghost'}
+            className='hover:bg-opacity-0 hover:text-spotify-green font-bold'
+            onClick={handleDemoDialogOpen}
+          >
+            See Demo
+          </ButtonWithTooltip>
+        </span>
+      </div>
       {/* Top action buttons */}
       <div className='flex flex-wrap gap-4 justify-center'>
         <ButtonWithTooltip
