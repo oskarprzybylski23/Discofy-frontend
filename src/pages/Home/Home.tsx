@@ -649,11 +649,8 @@ export default function Home() {
           functionality right now. We are adapting to the new Spotify limits.
           Thank you for your patience! <br />
           If you would like to use the app, you can still email us at{' '}
-          <a
-            className='text-spotify-green'
-            href='mailto:oskar.przybylski23@gmail.com'
-          >
-            oskar.przybylski23@gmail.com
+          <a className='text-spotify-green' href='mailto:discofy.app@gmail.com'>
+            discofy.app@gmail.com
           </a>{' '}
           so we can approve your request.
           <br /> You can check the app's functionality in demo below: <br />
